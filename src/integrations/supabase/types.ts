@@ -14,16 +14,146 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      attendance: {
+        Row: {
+          cadet_id: string
+          created_at: string
+          id: string
+          session_date: string
+          status: Database["public"]["Enums"]["attendance_status"]
+        }
+        Insert: {
+          cadet_id: string
+          created_at?: string
+          id?: string
+          session_date?: string
+          status?: Database["public"]["Enums"]["attendance_status"]
+        }
+        Update: {
+          cadet_id?: string
+          created_at?: string
+          id?: string
+          session_date?: string
+          status?: Database["public"]["Enums"]["attendance_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_cadet_id_fkey"
+            columns: ["cadet_id"]
+            isOneToOne: false
+            referencedRelation: "cadets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cadets: {
+        Row: {
+          batch: string | null
+          cadet_id: string
+          created_at: string
+          full_name: string
+          id: string
+          joined_on: string
+          phone: string | null
+          rank: string
+          status: Database["public"]["Enums"]["cadet_status"]
+          updated_at: string
+          ward: string
+        }
+        Insert: {
+          batch?: string | null
+          cadet_id: string
+          created_at?: string
+          full_name: string
+          id?: string
+          joined_on?: string
+          phone?: string | null
+          rank?: string
+          status?: Database["public"]["Enums"]["cadet_status"]
+          updated_at?: string
+          ward?: string
+        }
+        Update: {
+          batch?: string | null
+          cadet_id?: string
+          created_at?: string
+          full_name?: string
+          id?: string
+          joined_on?: string
+          phone?: string | null
+          rank?: string
+          status?: Database["public"]["Enums"]["cadet_status"]
+          updated_at?: string
+          ward?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          rank: string | null
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string
+          id: string
+          rank?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          rank?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "officer" | "cadet"
+      attendance_status: "present" | "absent" | "late" | "excused"
+      cadet_status: "active" | "inactive" | "passed_out"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +280,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "officer", "cadet"],
+      attendance_status: ["present", "absent", "late", "excused"],
+      cadet_status: ["active", "inactive", "passed_out"],
+    },
   },
 } as const
