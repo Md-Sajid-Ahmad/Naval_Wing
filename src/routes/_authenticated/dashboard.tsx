@@ -1,0 +1,158 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { AuthedShell } from "@/components/AuthedShell";
+import { bn, bn2, STATUS_BN, initial } from "@/lib/bn";
+
+export const Route = createFileRoute("/_authenticated/dashboard")({
+  head: () => ({
+    meta: [
+      { title: "অপারেশন ড্যাশবোর্ড — BNCC Naval Wing" },
+      {
+        name: "description",
+        content: "ক্যাডেট সংখ্যা, আজকের উপস্থিতি, অপেক্ষমাণ চিঠি ও সরঞ্জামের সংক্ষিপ্ত চিত্র এক নজরে।",
+      },
+      { property: "og:title", content: "অপারেশন ড্যাশবোর্ড — BNCC Naval Wing" },
+      { property: "og:description", content: "ক্যাডেট, উপস্থিতি ও কার্যক্রমের সংক্ষিপ্ত চিত্র এক নজরে।" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: DashboardPage,
+  errorComponent: ({ error }) => (
+    <div role="alert" className="p-6 text-sm text-destructive">
+      ডেটা লোড করা যায়নি: {error.message}
+    </div>
+  ),
+  notFoundComponent: () => <div className="p-6 text-sm">কিছু পাওয়া যায়নি।</div>,
+});
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+function DashboardPage() {
+  const { data } = useQuery({
+    queryKey: ["dashboard"],
+    queryFn: async () => {
+      const [cadets, attendance] = await Promise.all([
+        supabase.from("cadets").select("id, full_name, cadet_id, rank, ward, status").order("cadet_id"),
+        supabase.from("attendance").select("cadet_id, status").eq("session_date", today()),
+      ]);
+      if (cadets.error) throw cadets.error;
+      if (attendance.error) throw attendance.error;
+      return { cadets: cadets.data, attendance: attendance.data };
+    },
+  });
+
+  const cadets = data?.cadets ?? [];
+  const active = cadets.filter((c) => c.status === "active");
+  const present = (data?.attendance ?? []).filter((a) => a.status === "present").length;
+  const rate = active.length ? Math.round((present / active.length) * 100) : 0;
+  const wards = Array.from(new Set(cadets.map((c) => c.ward))).sort();
+
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "শুভ সকাল" : hour < 17 ? "শুভ অপরাহ্ন" : "শুভ সন্ধ্যা";
+
+  return (
+    <AuthedShell>
+      <div className="rise mb-5 flex items-end justify-between">
+        <div>
+          <p className="text-[13px] text-muted-foreground">{greeting}, কমান্ডার</p>
+          <h1 className="text-2xl font-extrabold tracking-tight text-balance">অপারেশন ড্যাশবোর্ড</h1>
+        </div>
+        <span className="text-right font-mono text-[10px] text-muted-foreground">
+          {new Date().toISOString().slice(0, 10)}
+          <br />
+          {bn2(new Date().getHours())}:{bn2(new Date().getMinutes())} BD
+        </span>
+      </div>
+
+      <div className="rise relative mb-5 overflow-hidden rounded-2xl glass p-4" style={{ animationDelay: "60ms" }}>
+        <div className="sweep pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12 bg-foreground/10" />
+        <div className="relative flex items-center justify-between">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-signal">Today · আজকের সর্বমোট</p>
+            <p className="mt-1 text-4xl font-extrabold tracking-tight">{bn(present)}</p>
+            <p className="text-xs text-muted-foreground">জন ক্যাডেট উপস্থিত</p>
+          </div>
+          <div className="text-right">
+            <p className="font-mono text-[10px] text-muted-foreground">ATTENDANCE</p>
+            <p className="text-lg font-bold text-signal">{bn(rate)}%</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-6 grid grid-cols-2 gap-3">
+        <StatTile delay={120} label="Total Cadets" value={bn(cadets.length)} caption="মোট ক্যাডেট" />
+        <StatTile delay={180} label="Attendance" value={bn(present)} caption="আজ উপস্থিত" accent />
+        <StatTile delay={240} label="Active" value={bn(active.length)} caption="সক্রিয় ক্যাডেট" />
+        <StatTile delay={300} label="Wards" value={bn(wards.length)} caption="উইং/ওয়ার্ড" />
+      </div>
+
+      <div className="rise mb-3 flex items-center justify-between" style={{ animationDelay: "360ms" }}>
+        <p className="text-sm font-bold tracking-tight">
+          ক্যাডেট তালিকা <span className="font-mono text-[10px] text-muted-foreground">/ Cadets</span>
+        </p>
+        <Link to="/cadets" className="font-mono text-[10px] text-muted-foreground">
+          {bn2(Math.min(cadets.length, 6))} / {bn(cadets.length)}
+        </Link>
+      </div>
+
+      {wards.slice(0, 2).map((ward) => (
+        <div key={ward} className="mb-3 overflow-hidden rounded-xl glass">
+          <div className="flex items-center gap-2 border-b border-border px-3 py-2">
+            <span className="size-1.5 rounded-full bg-signal" />
+            <p className="label-mono">{ward} Ward · ওয়ার্ড {ward}</p>
+          </div>
+          <div className="divide-y divide-border">
+            {cadets
+              .filter((c) => c.ward === ward)
+              .slice(0, 3)
+              .map((c) => (
+                <Link
+                  key={c.id}
+                  to="/cadets/$cadetId"
+                  params={{ cadetId: c.id }}
+                  className="flex items-center gap-3 px-3 py-2.5"
+                >
+                  <div className="grid size-9 place-items-center rounded-md bg-secondary text-xs font-bold ring-1 ring-border">
+                    {initial(c.full_name)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold">{c.full_name}</p>
+                    <p className="truncate font-mono text-[10px] text-muted-foreground">
+                      ID · {c.cadet_id} / {c.rank}
+                    </p>
+                  </div>
+                  <span className="rounded bg-secondary px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+                    {STATUS_BN[c.status]}
+                  </span>
+                </Link>
+              ))}
+          </div>
+        </div>
+      ))}
+    </AuthedShell>
+  );
+}
+
+function StatTile({
+  label,
+  value,
+  caption,
+  delay,
+  accent,
+}: {
+  label: string;
+  value: string;
+  caption: string;
+  delay: number;
+  accent?: boolean;
+}) {
+  return (
+    <div className="rise rounded-xl glass p-3" style={{ animationDelay: `${delay}ms` }}>
+      <p className="label-mono">{label}</p>
+      <p className="mt-1 text-2xl font-extrabold">{value}</p>
+      <p className={`text-[11px] ${accent ? "text-signal" : "text-muted-foreground"}`}>{caption}</p>
+    </div>
+  );
+}
