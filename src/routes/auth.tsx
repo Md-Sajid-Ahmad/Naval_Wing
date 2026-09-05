@@ -45,7 +45,7 @@ function AuthPage() {
     e.preventDefault();
     const parsed = schema.safeParse({ email, password, fullName });
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0].message);
+      toast.error(parsed.error.issues[0]?.message ?? "তথ্য সঠিক নয়");
       return;
     }
     setBusy(true);
