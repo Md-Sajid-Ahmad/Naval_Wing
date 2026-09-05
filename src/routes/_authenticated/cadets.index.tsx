@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
-import { useAuth, useRole } from "@/hooks/useAuth";
+
 import { bn, STATUS_BN, initial } from "@/lib/bn";
 
 export const Route = createFileRoute("/_authenticated/cadets/")({
@@ -42,9 +42,8 @@ const cadetSchema = z.object({
 });
 
 function CadetsPage() {
-  const { user } = useAuth();
-  const role = useRole(user?.id);
-  const isStaff = role === "admin" || role === "officer";
+  // লগইন ছাড়াই খোলা অ্যাপ — সবাই ক্যাডেট যোগ করতে পারবে।
+  const isStaff = true;
   const qc = useQueryClient();
 
   const [term, setTerm] = useState("");
