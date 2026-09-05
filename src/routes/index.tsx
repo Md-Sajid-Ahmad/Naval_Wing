@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -24,9 +23,7 @@ function Index() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      navigate({ to: data.session ? "/dashboard" : "/auth", replace: true });
-    });
+    navigate({ to: "/dashboard", replace: true });
   }, [navigate]);
 
   return (
