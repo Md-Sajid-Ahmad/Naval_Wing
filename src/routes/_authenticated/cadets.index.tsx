@@ -38,7 +38,7 @@ const cadetSchema = z.object({
   rank: z.string().trim().max(40),
   batch: z.string().trim().max(10),
   ward: z.string().trim().min(1).max(4),
-  phone: z.string().trim().max(20).optional(),
+  phone: z.string().trim().max(20).nullable(),
 });
 
 function CadetsPage() {
@@ -98,10 +98,10 @@ function CadetsPage() {
       rank: fd.get("rank") || "Cadet",
       batch: fd.get("batch"),
       ward: fd.get("ward") || "A",
-      phone: fd.get("phone") || undefined,
+      phone: fd.get("phone") || null,
     });
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0].message);
+      toast.error(parsed.error.issues[0]?.message ?? "তথ্য সঠিক নয়");
       return;
     }
     addCadet.mutate(parsed.data);
