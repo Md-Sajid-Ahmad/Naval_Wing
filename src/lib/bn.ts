@@ -2,7 +2,7 @@ const BN_DIGITS = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮"
 
 /** Convert any latin digits inside a value to Bangla digits. */
 export function bn(value: string | number): string {
-  return String(value).replace(/\d/g, (d) => BN_DIGITS[Number(d)]);
+  return String(value).replace(/\d/g, (d) => BN_DIGITS[Number(d)] ?? d);
 }
 
 /** Pad a number to two digits, then render in Bangla. */
