@@ -1,9 +1,6 @@
 import type { ReactNode } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { LayoutGrid, Users, CheckSquare, Mail, FileBarChart, LogOut } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { ROLE_BN, initial } from "@/lib/bn";
-import type { AppRole } from "@/hooks/useAuth";
+import { Link } from "@tanstack/react-router";
+import { LayoutGrid, Users, CheckSquare, Mail, FileBarChart } from "lucide-react";
 
 const TABS = [
   { to: "/dashboard", label: "ড্যাশবোর্ড", icon: LayoutGrid },
@@ -13,22 +10,7 @@ const TABS = [
   { to: "/reports", label: "রিপোর্ট", icon: FileBarChart },
 ] as const;
 
-export function AppShell({
-  children,
-  role,
-  displayName,
-}: {
-  children: ReactNode;
-  role: AppRole | null;
-  displayName: string;
-}) {
-  const navigate = useNavigate();
-
-  async function signOut() {
-    await supabase.auth.signOut();
-    navigate({ to: "/auth" });
-  }
-
+export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen w-full">
       <header className="sticky top-0 z-30 border-b border-border bg-navy/70 backdrop-blur-xl">
@@ -42,18 +24,9 @@ export function AppShell({
               <p className="text-sm font-extrabold tracking-tight">ব্রিজ কনসোল</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="rounded-full bg-signal/15 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-signal ring-1 ring-signal/30">
-              {role ? ROLE_BN[role] : "…"}
-            </span>
-            <button
-              onClick={signOut}
-              aria-label="সাইন আউট"
-              className="grid size-9 place-items-center rounded-full bg-secondary text-xs font-bold ring-1 ring-border"
-            >
-              {initial(displayName)}
-            </button>
-          </div>
+          <span className="rounded-full bg-signal/15 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-signal ring-1 ring-signal/30">
+            সকলের জন্য উন্মুক্ত
+          </span>
         </div>
       </header>
 
@@ -74,15 +47,6 @@ export function AppShell({
           ))}
         </div>
       </nav>
-
-      <button
-        onClick={signOut}
-        className="sr-only"
-        aria-hidden="true"
-        tabIndex={-1}
-      >
-        <LogOut />
-      </button>
     </div>
   );
 }

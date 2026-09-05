@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
-import { useAuth, useRole } from "@/hooks/useAuth";
+
 import { bn, STATUS_BN, initial } from "@/lib/bn";
 
 export const Route = createFileRoute("/_authenticated/attendance")({
@@ -24,9 +24,8 @@ export const Route = createFileRoute("/_authenticated/attendance")({
 const OPTIONS = ["present", "absent", "late", "excused"] as const;
 
 function AttendancePage() {
-  const { user } = useAuth();
-  const role = useRole(user?.id);
-  const isStaff = role === "admin" || role === "officer";
+  // লগইন ছাড়াই খোলা অ্যাপ — সবাই উপস্থিতি নিতে পারবে।
+  const isStaff = true;
   const qc = useQueryClient();
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
 
