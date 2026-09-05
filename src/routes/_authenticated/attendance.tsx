@@ -48,7 +48,7 @@ function AttendancePage() {
       const { data, error } = await supabase
         .from("attendance")
         .select("id, cadet_id, status")
-        .eq("date", date);
+        .eq("session_date", date);
       if (error) throw error;
       return data;
     },
@@ -57,10 +57,10 @@ function AttendancePage() {
   const map = new Map(records.map((r) => [r.cadet_id, r.status]));
 
   const mark = useMutation({
-    mutationFn: async ({ cadetId, status }: { cadetId: string; status: string }) => {
+    mutationFn: async ({ cadetId, status }: { cadetId: string; status: "present" | "absent" | "late" | "excused" }) => {
       const { error } = await supabase
         .from("attendance")
-        .upsert({ cadet_id: cadetId, date, status }, { onConflict: "cadet_id,date" });
+        .upsert({ cadet_id: cadetId, session_date: date, status }, { onConflict: "cadet_id,session_date" });
       if (error) throw error;
     },
     onSuccess: () => {

@@ -40,9 +40,9 @@ function CadetDetail() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("attendance")
-        .select("id, date, status")
+        .select("id, session_date, status")
         .eq("cadet_id", cadetId)
-        .order("date", { ascending: false })
+        .order("session_date", { ascending: false })
         .limit(10);
       if (error) throw error;
       return data;
@@ -83,7 +83,7 @@ function CadetDetail() {
           <div className="overflow-hidden rounded-xl glass divide-y divide-border">
             {records.map((r) => (
               <div key={r.id} className="flex items-center justify-between px-3 py-2.5">
-                <span className="font-mono text-[11px] text-muted-foreground">{bn(r.date)}</span>
+                <span className="font-mono text-[11px] text-muted-foreground">{bn(r.session_date)}</span>
                 <span className="text-xs font-semibold">{STATUS_BN[r.status] ?? r.status}</span>
               </div>
             ))}
