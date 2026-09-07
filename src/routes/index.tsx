@@ -1,8 +1,6 @@
-import { useEffect } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
-  ssr: false,
   head: () => ({
     meta: [
       { title: "BNCC Naval Wing — ব্রিজ কনসোল" },
@@ -16,25 +14,7 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Index,
+  beforeLoad: () => {
+    throw redirect({ to: "/dashboard", replace: true });
+  },
 });
-
-function Index() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    navigate({ to: "/dashboard", replace: true });
-  }, [navigate]);
-
-  return (
-    <div className="grid min-h-screen place-items-center px-4">
-      <div className="text-center">
-        <div className="mx-auto mb-4 grid size-12 place-items-center rounded-xl glass">
-          <span className="font-mono text-[11px] tracking-widest text-signal">BN</span>
-        </div>
-        <h1 className="text-xl font-extrabold tracking-tight">BNCC Naval Wing</h1>
-        <p className="mt-1 text-xs text-muted-foreground">ব্রিজ কনসোল লোড হচ্ছে…</p>
-      </div>
-    </div>
-  );
-}
