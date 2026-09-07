@@ -55,16 +55,28 @@ function AttendancePage() {
 
   const map = new Map(records.map((r) => [r.cadet_id, r.status]));
 
+  // একই চিহ্নে আবার চাপ দিলে চিহ্ন মুছে যায় (ভুল সংশোধন), অন্য চিহ্নে চাপ দিলে বদলে যায়।
   const mark = useMutation({
     mutationFn: async ({ cadetId, status }: { cadetId: string; status: "present" | "absent" | "late" | "excused" }) => {
+      if (map.get(cadetId) === status) {
+        const { error } = await supabase
+          .from("attendance")
+          .delete()
+          .eq("cadet_id", cadetId)
+          .eq("session_date", date);
+        if (error) throw error;
+        return "cleared" as const;
+      }
       const { error } = await supabase
         .from("attendance")
         .upsert({ cadet_id: cadetId, session_date: date, status }, { onConflict: "cadet_id,session_date" });
       if (error) throw error;
+      return "marked" as const;
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       qc.invalidateQueries({ queryKey: ["attendance"] });
       qc.invalidateQueries({ queryKey: ["dashboard"] });
+      if (result === "cleared") toast.success("চিহ্ন মুছে ফেলা হয়েছে");
     },
     onError: (e: Error) => toast.error(e.message),
   });
