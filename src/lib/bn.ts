@@ -34,6 +34,6 @@ export const ROLE_BN: Record<string, string> = {
   cadet: "ক্যাডেট",
 };
 
-export function initial(name: string): string {
-  return name.trim().charAt(0) || "?";
+export function initial(name?: string | null): string {
+  return (name ?? "").trim().charAt(0) || "?";
 }
