@@ -88,6 +88,9 @@ function AttendancePage() {
       <div className="rise mb-4">
         <p className="label-mono">Attendance Muster</p>
         <h1 className="text-2xl font-extrabold tracking-tight">উপস্থিতি</h1>
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          ভুল হলে অন্য চিহ্ন চাপুন; নির্বাচিত চিহ্নে আবার চাপলে তা মুছে যাবে।
+        </p>
       </div>
 
       <div className="rise mb-4 flex items-center justify-between rounded-xl glass px-3 py-2.5">
