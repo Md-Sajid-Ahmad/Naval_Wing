@@ -10,12 +10,14 @@ export function bn2(value: number): string {
   return bn(String(value).padStart(2, "0"));
 }
 
+export const RANKS = ["Cadet", "LCPL", "CPL", "SGT", "CUO"] as const;
+
 export const RANK_BN: Record<string, string> = {
   Cadet: "ক্যাডেট",
-  "Senior Cadet": "সিনিয়র ক্যাডেট",
-  Corporal: "কর্পোরাল",
-  Sergeant: "সার্জেন্ট",
-  "Under Officer": "আন্ডার অফিসার",
+  LCPL: "ল্যান্স কর্পোরাল",
+  CPL: "কর্পোরাল",
+  SGT: "সার্জেন্ট",
+  CUO: "ক্যাডেট আন্ডার অফিসার",
 };
 
 export const STATUS_BN: Record<string, string> = {
