@@ -24,9 +24,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               <p className="text-sm font-extrabold tracking-tight">ব্রিজ কনসোল</p>
             </div>
           </div>
-          <span className="rounded-full bg-signal/15 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-signal ring-1 ring-signal/30">
-            সকলের জন্য উন্মুক্ত
-          </span>
         </div>
       </header>
 
