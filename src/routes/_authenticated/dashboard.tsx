@@ -66,71 +66,12 @@ function DashboardPage() {
         </span>
       </div>
 
-      <div className="rise relative mb-5 overflow-hidden rounded-2xl glass p-4" style={{ animationDelay: "60ms" }}>
-        <div className="sweep pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12 bg-foreground/10" />
-        <div className="relative flex items-center justify-between">
-          <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-signal">Today · আজকের সর্বমোট</p>
-            <p className="mt-1 text-4xl font-extrabold tracking-tight">{bn(present)}</p>
-            <p className="text-xs text-muted-foreground">জন ক্যাডেট উপস্থিত</p>
-          </div>
-          <div className="text-right">
-            <p className="font-mono text-[10px] text-muted-foreground">ATTENDANCE</p>
-            <p className="text-lg font-bold text-signal">{bn(rate)}%</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="mb-6 grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <StatTile delay={120} label="Total Cadets" value={bn(cadets.length)} caption="মোট ক্যাডেট" />
-        <StatTile delay={180} label="Attendance" value={bn(present)} caption="আজ উপস্থিত" accent />
-        <StatTile delay={240} label="Active" value={bn(active.length)} caption="সক্রিয় ক্যাডেট" />
-        <StatTile delay={300} label="Wards" value={bn(wards.length)} caption="উইং/ওয়ার্ড" />
+        <StatTile delay={180} label="Class" value={bn(classes.length)} caption="ক্লাস/ব্যাচ" />
+        <StatTile delay={240} label="Programs" value={bn(programs.length)} caption="প্রোগ্রাম" />
+        <StatTile delay={300} label="Dismissed" value={bn(dismissed)} caption="বহিষ্কার ক্যাডেট" accent />
       </div>
-
-      <div className="rise mb-3 flex items-center justify-between" style={{ animationDelay: "360ms" }}>
-        <p className="text-sm font-bold tracking-tight">
-          ক্যাডেট তালিকা <span className="font-mono text-[10px] text-muted-foreground">/ Cadets</span>
-        </p>
-        <Link to="/cadets" className="font-mono text-[10px] text-muted-foreground">
-          {bn2(Math.min(cadets.length, 6))} / {bn(cadets.length)}
-        </Link>
-      </div>
-
-      {wards.slice(0, 2).map((ward) => (
-        <div key={ward} className="mb-3 overflow-hidden rounded-xl glass">
-          <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-            <span className="size-1.5 rounded-full bg-signal" />
-            <p className="label-mono">{ward} Ward · ওয়ার্ড {ward}</p>
-          </div>
-          <div className="divide-y divide-border">
-            {cadets
-              .filter((c) => c.ward === ward)
-              .slice(0, 3)
-              .map((c) => (
-                <Link
-                  key={c.id}
-                  to="/cadets/$cadetId"
-                  params={{ cadetId: c.id }}
-                  className="flex items-center gap-3 px-3 py-2.5"
-                >
-                  <div className="grid size-9 place-items-center rounded-md bg-secondary text-xs font-bold ring-1 ring-border">
-                    {initial(c.full_name)}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold">{c.full_name}</p>
-                    <p className="truncate font-mono text-[10px] text-muted-foreground">
-                      ID · {c.cadet_id} / {c.rank}
-                    </p>
-                  </div>
-                  <span className="rounded bg-secondary px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
-                    {STATUS_BN[c.status]}
-                  </span>
-                </Link>
-              ))}
-          </div>
-        </div>
-      ))}
     </AuthedShell>
   );
 }
