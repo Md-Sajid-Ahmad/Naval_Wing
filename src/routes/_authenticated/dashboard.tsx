@@ -33,21 +33,16 @@ function DashboardPage() {
   const { data } = useQuery({
     queryKey: ["dashboard"],
     queryFn: async () => {
-      const [cadets, attendance] = await Promise.all([
-        supabase.from("cadets").select("id, full_name, cadet_id, rank, ward, status").order("cadet_id"),
-        supabase.from("attendance").select("cadet_id, status").eq("session_date", today()),
-      ]);
+      const cadets = await supabase.from("cadets").select("id, batch, ward, status").order("cadet_id");
       if (cadets.error) throw cadets.error;
-      if (attendance.error) throw attendance.error;
-      return { cadets: cadets.data, attendance: attendance.data };
+      return { cadets: cadets.data };
     },
   });
 
   const cadets = data?.cadets ?? [];
-  const active = cadets.filter((c) => c.status === "active");
-  const present = (data?.attendance ?? []).filter((a) => a.status === "present").length;
-  const rate = active.length ? Math.round((present / active.length) * 100) : 0;
-  const wards = Array.from(new Set(cadets.map((c) => c.ward))).sort();
+  const classes = Array.from(new Set(cadets.map((c) => c.batch).filter(Boolean)));
+  const programs = Array.from(new Set(cadets.map((c) => c.ward).filter(Boolean)));
+  const dismissed = cadets.filter((c) => c.status === "inactive").length;
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "শুভ সকাল" : hour < 17 ? "শুভ অপরাহ্ন" : "শুভ সন্ধ্যা";
