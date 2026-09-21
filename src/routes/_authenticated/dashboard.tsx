@@ -67,7 +67,7 @@ function DashboardPage() {
         <StatTile delay={180} label="Class" value={bn(classes.length)} caption="ক্লাস/ব্যাচ" />
         <StatTile delay={240} label="Ranks" value={bn(ranks.length)} caption="র‍্যাংক" />
         <Link to="/cadets/dismissed" className="contents">
-          <StatTile delay={300} label="Dismissed" value={bn(dismissed)} caption="বহিষ্কার লিস্ট" accent />
+          <StatTile delay={300} label="বহিষ্কার লিস্ট" value={bn(dismissed)} caption="Dismissed Cadets" accent />
         </Link>
       </div>
     </AuthedShell>
