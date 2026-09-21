@@ -124,7 +124,7 @@ function CadetsPage() {
       <div className="rise mb-4 flex items-end justify-between">
         <div>
           <p className="label-mono">Cadet Register</p>
-          <h1 className="text-2xl font-extrabold tracking-tight">ক্যাডেট তালিকা</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">আজকের আপডেট</h1>
         </div>
         {isStaff && (
           <button
