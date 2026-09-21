@@ -50,6 +50,7 @@ function CadetsPage() {
   const [term, setTerm] = useState("");
   const [ward, setWard] = useState<string>("all");
   const [open, setOpen] = useState(false);
+  const [photo, setPhoto] = useState<File | null>(null);
 
   const { data: cadets = [] } = useQuery({
     queryKey: ["cadets"],
@@ -76,13 +77,24 @@ function CadetsPage() {
   });
 
   const addCadet = useMutation({
-    mutationFn: async (form: z.infer<typeof cadetSchema>) => {
-      const { error } = await supabase.from("cadets").insert(form);
+    mutationFn: async ({ form, file }: { form: z.infer<typeof cadetSchema>; file: File | null }) => {
+      let photo_url: string | null = null;
+      if (file && file.size > 0) {
+        const ext = file.name.split(".").pop() ?? "jpg";
+        const path = `${crypto.randomUUID()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("cadet-photos").upload(path, file, {
+          contentType: file.type || "image/jpeg",
+        });
+        if (upErr) throw upErr;
+        photo_url = path;
+      }
+      const { error } = await supabase.from("cadets").insert({ ...form, photo_url });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("নতুন ক্যাডেট যোগ হয়েছে");
       setOpen(false);
+      setPhoto(null);
       qc.invalidateQueries({ queryKey: ["cadets"] });
       qc.invalidateQueries({ queryKey: ["dashboard"] });
     },
@@ -104,7 +116,7 @@ function CadetsPage() {
       toast.error(parsed.error.issues[0]?.message ?? "তথ্য সঠিক নয়");
       return;
     }
-    addCadet.mutate(parsed.data);
+    addCadet.mutate({ form: parsed.data, file: photo });
   }
 
   return (
