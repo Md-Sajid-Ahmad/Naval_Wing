@@ -14,16 +14,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen w-full">
       <header className="sticky top-0 z-30 border-b border-border bg-navy/95 [transform:translateZ(0)]">
-        <div className="mx-auto flex h-14 max-w-[430px] items-center justify-between px-4">
-          <div className="flex items-center gap-3">
-            <div className="grid size-9 place-items-center rounded-lg glass">
-              <span className="font-mono text-[10px] tracking-widest text-signal">BN</span>
-            </div>
-            <div className="leading-tight">
-              <p className="label-mono">BNCC · Naval Wing</p>
-              <p className="text-sm font-extrabold tracking-tight">ব্রিজ কনসোল</p>
-            </div>
-          </div>
+        <div className="mx-auto flex h-14 max-w-[430px] items-center justify-center px-4">
+          <p className="font-mono text-sm font-extrabold uppercase tracking-[0.18em] text-signal">
+            BNCC NAVAL WING DATA
+          </p>
         </div>
       </header>
 
