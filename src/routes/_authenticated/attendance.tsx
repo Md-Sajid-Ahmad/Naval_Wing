@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 
-import { bn, STATUS_BN, initial } from "@/lib/bn";
+import { bn, STATUS_BN } from "@/lib/bn";
+import { CadetAvatar } from "@/components/CadetAvatar";
 
 export const Route = createFileRoute("/_authenticated/attendance")({
   head: () => ({
@@ -34,7 +35,7 @@ function AttendancePage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cadets")
-        .select("id, cadet_id, full_name, ward")
+        .select("id, cadet_id, full_name, ward, photo_url")
         .order("cadet_id");
       if (error) throw error;
       return data;
@@ -111,9 +112,7 @@ function AttendancePage() {
           return (
             <div key={c.id} className="px-3 py-2.5">
               <div className="flex items-center gap-3">
-                <div className="grid size-8 place-items-center rounded-md bg-secondary text-[11px] font-bold ring-1 ring-border">
-                  {initial(c.full_name)}
-                </div>
+                <CadetAvatar path={c.photo_url} name={c.full_name} size={32} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{c.full_name}</p>
                   <p className="font-mono text-[10px] text-muted-foreground">

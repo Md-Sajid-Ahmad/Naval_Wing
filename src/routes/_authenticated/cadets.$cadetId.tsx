@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
-import { bn, RANK_BN, STATUS_BN, initial } from "@/lib/bn";
+import { bn, RANK_BN, STATUS_BN } from "@/lib/bn";
+import { CadetAvatar } from "@/components/CadetAvatar";
 
 export const Route = createFileRoute("/_authenticated/cadets/$cadetId")({
   head: () => ({
@@ -60,9 +61,7 @@ function CadetDetail() {
       ) : (
         <>
           <div className="rise mb-4 flex items-center gap-3 rounded-2xl glass p-4">
-            <div className="grid size-14 place-items-center rounded-xl bg-secondary text-lg font-bold ring-1 ring-border">
-              {initial(cadet.full_name)}
-            </div>
+            <CadetAvatar path={cadet.photo_url} name={cadet.full_name} size={56} rounded="rounded-xl" />
             <div className="min-w-0">
               <p className="label-mono">ID · {cadet.cadet_id}</p>
               <h1 className="truncate text-xl font-extrabold tracking-tight">{cadet.full_name}</h1>
