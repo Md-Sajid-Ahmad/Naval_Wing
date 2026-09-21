@@ -37,6 +37,7 @@ const cadetSchema = z.object({
   cadet_id: z.string().trim().min(2, "ক্যাডেট আইডি দিন").max(30),
   full_name: z.string().trim().min(2, "নাম দিন").max(100),
   rank: z.string().trim().min(1).max(40),
+  gender: z.string().trim().min(1).max(10),
   batch: z.string().trim().max(10),
   phone: z.string().trim().max(20).nullable(),
 });
@@ -110,6 +111,7 @@ function CadetsPage() {
       cadet_id: fd.get("cadet_id"),
       full_name: fd.get("full_name"),
       rank: fd.get("rank") || "Cadet",
+      gender: fd.get("gender") || "male",
       batch: fd.get("batch"),
       phone: fd.get("phone") || null,
     });
@@ -184,8 +186,22 @@ function CadetsPage() {
                 ))}
               </select>
             </div>
-            <Field name="phone" label="ফোন" placeholder="017…" />
+            <div>
+              <label className="label-mono" htmlFor="gender">
+                লিঙ্গ
+              </label>
+              <select
+                id="gender"
+                name="gender"
+                defaultValue="male"
+                className="mt-1 w-full rounded-lg bg-secondary px-3 py-2 text-sm outline-none ring-1 ring-border focus:ring-signal/60"
+              >
+                <option value="male">পুরুষ</option>
+                <option value="female">নারী</option>
+              </select>
+            </div>
           </div>
+          <Field name="phone" label="ফোন" placeholder="017…" />
           <button
             type="submit"
             disabled={addCadet.isPending}
