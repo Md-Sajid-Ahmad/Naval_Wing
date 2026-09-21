@@ -7,7 +7,8 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 
-import { bn, STATUS_BN, initial } from "@/lib/bn";
+import { bn, STATUS_BN } from "@/lib/bn";
+import { CadetAvatar } from "@/components/CadetAvatar";
 
 export const Route = createFileRoute("/_authenticated/cadets/")({
   head: () => ({
@@ -49,13 +50,14 @@ function CadetsPage() {
   const [term, setTerm] = useState("");
   const [ward, setWard] = useState<string>("all");
   const [open, setOpen] = useState(false);
+  const [photo, setPhoto] = useState<File | null>(null);
 
   const { data: cadets = [] } = useQuery({
     queryKey: ["cadets"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cadets")
-        .select("id, cadet_id, full_name, rank, batch, ward, status")
+        .select("id, cadet_id, full_name, rank, batch, ward, status, photo_url")
         .order("cadet_id");
       if (error) throw error;
       return data;
@@ -75,13 +77,24 @@ function CadetsPage() {
   });
 
   const addCadet = useMutation({
-    mutationFn: async (form: z.infer<typeof cadetSchema>) => {
-      const { error } = await supabase.from("cadets").insert(form);
+    mutationFn: async ({ form, file }: { form: z.infer<typeof cadetSchema>; file: File | null }) => {
+      let photo_url: string | null = null;
+      if (file && file.size > 0) {
+        const ext = file.name.split(".").pop() ?? "jpg";
+        const path = `${crypto.randomUUID()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("cadet-photos").upload(path, file, {
+          contentType: file.type || "image/jpeg",
+        });
+        if (upErr) throw upErr;
+        photo_url = path;
+      }
+      const { error } = await supabase.from("cadets").insert({ ...form, photo_url });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("নতুন ক্যাডেট যোগ হয়েছে");
       setOpen(false);
+      setPhoto(null);
       qc.invalidateQueries({ queryKey: ["cadets"] });
       qc.invalidateQueries({ queryKey: ["dashboard"] });
     },
@@ -103,7 +116,7 @@ function CadetsPage() {
       toast.error(parsed.error.issues[0]?.message ?? "তথ্য সঠিক নয়");
       return;
     }
-    addCadet.mutate(parsed.data);
+    addCadet.mutate({ form: parsed.data, file: photo });
   }
 
   return (
@@ -126,6 +139,27 @@ function CadetsPage() {
       {open && isStaff && (
         <form onSubmit={submit} className="rise mb-4 space-y-2.5 rounded-2xl glass p-4">
           <p className="label-mono">New cadet · নতুন ক্যাডেট</p>
+          <div className="flex items-center gap-3">
+            <div className="grid size-14 place-items-center overflow-hidden rounded-xl bg-secondary ring-1 ring-border">
+              {photo ? (
+                <img src={URL.createObjectURL(photo)} alt="ছবি" className="size-full object-cover" />
+              ) : (
+                <span className="text-[10px] text-muted-foreground">ছবি</span>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <label className="label-mono" htmlFor="photo">
+                ক্যাডেটের ছবি
+              </label>
+              <input
+                id="photo"
+                type="file"
+                accept="image/*"
+                onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
+                className="mt-1 w-full text-[11px] text-muted-foreground file:mr-2 file:rounded-md file:border-0 file:bg-secondary file:px-2 file:py-1 file:text-[11px] file:text-foreground"
+              />
+            </div>
+          </div>
           <div className="grid grid-cols-2 gap-2.5">
             <Field name="cadet_id" label="ক্যাডেট আইডি" placeholder="BN-2301" />
             <Field name="batch" label="ব্যাচ" placeholder="2025" />
@@ -185,9 +219,7 @@ function CadetsPage() {
               params={{ cadetId: c.id }}
               className="flex items-center gap-3 px-3 py-2.5"
             >
-              <div className="grid size-9 place-items-center rounded-md bg-secondary text-xs font-bold ring-1 ring-border">
-                {initial(c.full_name)}
-              </div>
+              <CadetAvatar path={c.photo_url} name={c.full_name} size={36} />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{c.full_name}</p>
                 <p className="truncate font-mono text-[10px] text-muted-foreground">

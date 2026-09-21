@@ -55,6 +55,7 @@ export type Database = {
           id: string
           joined_on: string
           phone: string | null
+          photo_url: string | null
           rank: string
           status: Database["public"]["Enums"]["cadet_status"]
           updated_at: string
@@ -68,6 +69,7 @@ export type Database = {
           id?: string
           joined_on?: string
           phone?: string | null
+          photo_url?: string | null
           rank?: string
           status?: Database["public"]["Enums"]["cadet_status"]
           updated_at?: string
@@ -81,6 +83,7 @@ export type Database = {
           id?: string
           joined_on?: string
           phone?: string | null
+          photo_url?: string | null
           rank?: string
           status?: Database["public"]["Enums"]["cadet_status"]
           updated_at?: string
