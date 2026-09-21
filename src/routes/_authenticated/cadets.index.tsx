@@ -7,7 +7,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 
-import { bn, STATUS_BN } from "@/lib/bn";
+import { bn, RANK_BN, RANKS, STATUS_BN } from "@/lib/bn";
 import { CadetAvatar } from "@/components/CadetAvatar";
 
 export const Route = createFileRoute("/_authenticated/cadets/")({
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/cadets/")({
       { title: "ক্যাডেট ম্যানেজমেন্ট — BNCC Naval Wing" },
       {
         name: "description",
-        content: "ক্যাডেটদের তালিকা দেখুন, নাম বা আইডি দিয়ে খুঁজুন, ওয়ার্ড অনুযায়ী ফিল্টার করুন ও নতুন ক্যাডেট যোগ করুন।",
+        content: "ক্যাডেটদের তালিকা দেখুন, নাম বা আইডি দিয়ে খুঁজুন, র‍্যাংক অনুযায়ী ফিল্টার করুন ও নতুন ক্যাডেট যোগ করুন।",
       },
       { property: "og:title", content: "ক্যাডেট ম্যানেজমেন্ট — BNCC Naval Wing" },
       { property: "og:description", content: "ক্যাডেট তালিকা, সার্চ, ফিল্টার ও নতুন ক্যাডেট নিবন্ধন।" },
@@ -36,9 +36,8 @@ export const Route = createFileRoute("/_authenticated/cadets/")({
 const cadetSchema = z.object({
   cadet_id: z.string().trim().min(2, "ক্যাডেট আইডি দিন").max(30),
   full_name: z.string().trim().min(2, "নাম দিন").max(100),
-  rank: z.string().trim().max(40),
+  rank: z.string().trim().min(1).max(40),
   batch: z.string().trim().max(10),
-  ward: z.string().trim().min(1).max(4),
   phone: z.string().trim().max(20).nullable(),
 });
 
@@ -48,7 +47,7 @@ function CadetsPage() {
   const qc = useQueryClient();
 
   const [term, setTerm] = useState("");
-  const [ward, setWard] = useState<string>("all");
+  const [rankFilter, setRankFilter] = useState<string>("all");
   const [open, setOpen] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
 
@@ -57,14 +56,17 @@ function CadetsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cadets")
-        .select("id, cadet_id, full_name, rank, batch, ward, status, photo_url")
+        .select("id, cadet_id, full_name, rank, batch, status, photo_url")
         .order("cadet_id");
       if (error) throw error;
       return data;
     },
   });
 
-  const wards = useMemo(() => Array.from(new Set(cadets.map((c) => c.ward))).sort(), [cadets]);
+  const ranks = useMemo(
+    () => RANKS.filter((r) => cadets.some((c) => c.rank === r)),
+    [cadets],
+  );
 
   const filtered = cadets.filter((c) => {
     const t = term.trim().toLowerCase();
@@ -73,7 +75,7 @@ function CadetsPage() {
       c.full_name.toLowerCase().includes(t) ||
       c.cadet_id.toLowerCase().includes(t) ||
       c.rank.toLowerCase().includes(t);
-    return matchTerm && (ward === "all" || c.ward === ward);
+    return matchTerm && (rankFilter === "all" || c.rank === rankFilter);
   });
 
   const addCadet = useMutation({
@@ -109,7 +111,6 @@ function CadetsPage() {
       full_name: fd.get("full_name"),
       rank: fd.get("rank") || "Cadet",
       batch: fd.get("batch"),
-      ward: fd.get("ward") || "A",
       phone: fd.get("phone") || null,
     });
     if (!parsed.success) {
@@ -165,9 +166,24 @@ function CadetsPage() {
             <Field name="batch" label="ব্যাচ" placeholder="2025" />
           </div>
           <Field name="full_name" label="পূর্ণ নাম" placeholder="মোঃ রায়হান হোসেন" />
-          <div className="grid grid-cols-3 gap-2.5">
-            <Field name="rank" label="র‍্যাংক" placeholder="Cadet" />
-            <Field name="ward" label="ওয়ার্ড" placeholder="A" />
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
+              <label className="label-mono" htmlFor="rank">
+                র‍্যাংক
+              </label>
+              <select
+                id="rank"
+                name="rank"
+                defaultValue="Cadet"
+                className="mt-1 w-full rounded-lg bg-secondary px-3 py-2 text-sm outline-none ring-1 ring-border focus:ring-signal/60"
+              >
+                {RANKS.map((r) => (
+                  <option key={r} value={r}>
+                    {r} · {RANK_BN[r]}
+                  </option>
+                ))}
+              </select>
+            </div>
             <Field name="phone" label="ফোন" placeholder="017…" />
           </div>
           <button
@@ -191,17 +207,17 @@ function CadetsPage() {
       </div>
 
       <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1">
-        {["all", ...wards].map((w) => (
+        {["all", ...ranks].map((r) => (
           <button
-            key={w}
-            onClick={() => setWard(w)}
+            key={r}
+            onClick={() => setRankFilter(r)}
             className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-medium ring-1 ${
-              ward === w
+              rankFilter === r
                 ? "bg-signal/15 text-signal ring-signal/30"
                 : "bg-secondary text-muted-foreground ring-border"
             }`}
           >
-            {w === "all" ? "সব" : `ওয়ার্ড ${w}`}
+            {r === "all" ? "সব" : r}
           </button>
         ))}
       </div>

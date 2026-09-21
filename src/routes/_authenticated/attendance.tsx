@@ -35,7 +35,7 @@ function AttendancePage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cadets")
-        .select("id, cadet_id, full_name, ward, photo_url")
+        .select("id, cadet_id, full_name, rank, photo_url")
         .order("cadet_id");
       if (error) throw error;
       return data;
@@ -116,7 +116,7 @@ function AttendancePage() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{c.full_name}</p>
                   <p className="font-mono text-[10px] text-muted-foreground">
-                    {c.cadet_id} · ওয়ার্ড {c.ward}
+                    {c.cadet_id} · {c.rank}
                   </p>
                 </div>
                 {!isStaff && (

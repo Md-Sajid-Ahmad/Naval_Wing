@@ -32,7 +32,7 @@ function DashboardPage() {
   const { data } = useQuery({
     queryKey: ["dashboard"],
     queryFn: async () => {
-      const cadets = await supabase.from("cadets").select("id, batch, ward, status").order("cadet_id");
+      const cadets = await supabase.from("cadets").select("id, batch, rank, status").order("cadet_id");
       if (cadets.error) throw cadets.error;
       return { cadets: cadets.data };
     },
@@ -40,7 +40,7 @@ function DashboardPage() {
 
   const cadets = data?.cadets ?? [];
   const classes = Array.from(new Set(cadets.map((c) => c.batch).filter(Boolean)));
-  const programs = Array.from(new Set(cadets.map((c) => c.ward).filter(Boolean)));
+  const ranks = Array.from(new Set(cadets.map((c) => c.rank).filter(Boolean)));
   const dismissed = cadets.filter((c) => c.status === "inactive").length;
 
   const hour = new Date().getHours();
@@ -63,7 +63,7 @@ function DashboardPage() {
       <div className="grid grid-cols-2 gap-3">
         <StatTile delay={120} label="Total Cadets" value={bn(cadets.length)} caption="মোট ক্যাডেট" />
         <StatTile delay={180} label="Class" value={bn(classes.length)} caption="ক্লাস/ব্যাচ" />
-        <StatTile delay={240} label="Programs" value={bn(programs.length)} caption="প্রোগ্রাম" />
+        <StatTile delay={240} label="Ranks" value={bn(ranks.length)} caption="র‍্যাংক" />
         <StatTile delay={300} label="Dismissed" value={bn(dismissed)} caption="বহিষ্কার ক্যাডেট" accent />
       </div>
     </AuthedShell>
