@@ -66,7 +66,7 @@ function CadetDetail() {
               <p className="label-mono">ID · {cadet.cadet_id}</p>
               <h1 className="truncate text-xl font-extrabold tracking-tight">{cadet.full_name}</h1>
               <p className="text-xs text-muted-foreground">
-                {RANK_BN[cadet.rank] ?? cadet.rank} · ওয়ার্ড {cadet.ward}
+                {cadet.rank} · {RANK_BN[cadet.rank] ?? cadet.rank}
               </p>
             </div>
           </div>
