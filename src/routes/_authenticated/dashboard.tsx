@@ -1,8 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
-import { bn, bn2, STATUS_BN, initial } from "@/lib/bn";
+import { bn, bn2 } from "@/lib/bn";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -27,7 +27,6 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   notFoundComponent: () => <div className="p-6 text-sm">কিছু পাওয়া যায়নি।</div>,
 });
 
-const today = () => new Date().toISOString().slice(0, 10);
 
 function DashboardPage() {
   const { data } = useQuery({
