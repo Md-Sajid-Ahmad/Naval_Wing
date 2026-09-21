@@ -1,0 +1,1 @@
+ALTER TABLE public.cadets ADD COLUMN IF NOT EXISTS photo_url text;
