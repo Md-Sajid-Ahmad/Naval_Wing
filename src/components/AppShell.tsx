@@ -15,7 +15,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen w-full">
       <header className="sticky top-0 z-30 border-b border-border bg-navy/95 [transform:translateZ(0)]">
         <div className="mx-auto flex h-14 max-w-[430px] items-center justify-center px-4">
-          <p className="font-mono text-sm font-extrabold uppercase tracking-[0.18em] text-signal">
+          <p className="font-mono text-sm font-extrabold uppercase tracking-[0.18em] text-paper">
             BNCC NAVAL WING DATA
           </p>
         </div>
