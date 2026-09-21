@@ -7,7 +7,8 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 
-import { bn, STATUS_BN, initial } from "@/lib/bn";
+import { bn, STATUS_BN } from "@/lib/bn";
+import { CadetAvatar } from "@/components/CadetAvatar";
 
 export const Route = createFileRoute("/_authenticated/cadets/")({
   head: () => ({
@@ -55,7 +56,7 @@ function CadetsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cadets")
-        .select("id, cadet_id, full_name, rank, batch, ward, status")
+        .select("id, cadet_id, full_name, rank, batch, ward, status, photo_url")
         .order("cadet_id");
       if (error) throw error;
       return data;
@@ -185,9 +186,7 @@ function CadetsPage() {
               params={{ cadetId: c.id }}
               className="flex items-center gap-3 px-3 py-2.5"
             >
-              <div className="grid size-9 place-items-center rounded-md bg-secondary text-xs font-bold ring-1 ring-border">
-                {initial(c.full_name)}
-              </div>
+              <CadetAvatar path={c.photo_url} name={c.full_name} size={36} />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{c.full_name}</p>
                 <p className="truncate font-mono text-[10px] text-muted-foreground">
