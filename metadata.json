@@ -1,0 +1,6 @@
+{
+  "name": "BNCC Guard Hub",
+  "description": "BNCC Naval Wing Cadet Management, Attendance Muster, Rank Breakdown, and Operational Dashboard",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
