@@ -175,3 +175,15 @@
       background-color 0.18s ease;
   }
 }
+
+/* Hide the published "Edit with Lovable" badge without affecting layout */
+#lovable-badge,
+a#lovable-badge,
+[id^="lovable-badge"],
+a[href*="lovable.dev"][target="_blank"][class*="badge"],
+#lovable-badge-close {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
