@@ -18,6 +18,7 @@ import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedCadetsIndexRouteImport } from './routes/_authenticated/cadets.index'
 import { Route as AuthenticatedCadetsCadetIdRouteImport } from './routes/_authenticated/cadets.$cadetId'
 import { Route as AuthenticatedCadetsBreakdownRouteImport } from './routes/_authenticated/cadets.breakdown'
+import { Route as AuthenticatedCadetsDismissedRouteImport } from './routes/_authenticated/cadets.dismissed'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -66,6 +67,12 @@ const AuthenticatedCadetsBreakdownRoute =
     path: '/cadets/breakdown',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCadetsDismissedRoute =
+  AuthenticatedCadetsDismissedRouteImport.update({
+    id: '/cadets/dismissed',
+    path: '/cadets/dismissed',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/reports': typeof AuthenticatedReportsRoute
   '/cadets/$cadetId': typeof AuthenticatedCadetsCadetIdRoute
   '/cadets/breakdown': typeof AuthenticatedCadetsBreakdownRoute
+  '/cadets/dismissed': typeof AuthenticatedCadetsDismissedRoute
   '/cadets/': typeof AuthenticatedCadetsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -85,6 +93,7 @@ export interface FileRoutesByTo {
   '/reports': typeof AuthenticatedReportsRoute
   '/cadets/$cadetId': typeof AuthenticatedCadetsCadetIdRoute
   '/cadets/breakdown': typeof AuthenticatedCadetsBreakdownRoute
+  '/cadets/dismissed': typeof AuthenticatedCadetsDismissedRoute
   '/cadets': typeof AuthenticatedCadetsIndexRoute
 }
 export interface FileRoutesById {
@@ -97,6 +106,7 @@ export interface FileRoutesById {
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/cadets/$cadetId': typeof AuthenticatedCadetsCadetIdRoute
   '/_authenticated/cadets/breakdown': typeof AuthenticatedCadetsBreakdownRoute
+  '/_authenticated/cadets/dismissed': typeof AuthenticatedCadetsDismissedRoute
   '/_authenticated/cadets/': typeof AuthenticatedCadetsIndexRoute
 }
 export interface FileRouteTypes {
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/cadets/$cadetId'
     | '/cadets/breakdown'
+    | '/cadets/dismissed'
     | '/cadets/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/cadets/$cadetId'
     | '/cadets/breakdown'
+    | '/cadets/dismissed'
     | '/cadets'
   id:
     | '__root__'
@@ -130,6 +142,7 @@ export interface FileRouteTypes {
     | '/_authenticated/reports'
     | '/_authenticated/cadets/$cadetId'
     | '/_authenticated/cadets/breakdown'
+    | '/_authenticated/cadets/dismissed'
     | '/_authenticated/cadets/'
   fileRoutesById: FileRoutesById
 }
@@ -203,6 +216,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCadetsBreakdownRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/cadets/dismissed': {
+      id: '/_authenticated/cadets/dismissed'
+      path: '/cadets/dismissed'
+      fullPath: '/cadets/dismissed'
+      preLoaderRoute: typeof AuthenticatedCadetsDismissedRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -213,6 +233,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedCadetsCadetIdRoute: typeof AuthenticatedCadetsCadetIdRoute
   AuthenticatedCadetsBreakdownRoute: typeof AuthenticatedCadetsBreakdownRoute
+  AuthenticatedCadetsDismissedRoute: typeof AuthenticatedCadetsDismissedRoute
   AuthenticatedCadetsIndexRoute: typeof AuthenticatedCadetsIndexRoute
 }
 
@@ -223,6 +244,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedCadetsCadetIdRoute: AuthenticatedCadetsCadetIdRoute,
   AuthenticatedCadetsBreakdownRoute: AuthenticatedCadetsBreakdownRoute,
+  AuthenticatedCadetsDismissedRoute: AuthenticatedCadetsDismissedRoute,
   AuthenticatedCadetsIndexRoute: AuthenticatedCadetsIndexRoute,
 }
 
