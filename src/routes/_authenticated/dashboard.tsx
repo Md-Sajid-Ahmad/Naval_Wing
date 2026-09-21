@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
@@ -61,7 +61,9 @@ function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <StatTile delay={120} label="Total Cadets" value={bn(cadets.length)} caption="মোট ক্যাডেট" />
+        <Link to="/cadets/breakdown" className="contents">
+          <StatTile delay={120} label="Total Cadets" value={bn(cadets.length)} caption="মোট ক্যাডেট" />
+        </Link>
         <StatTile delay={180} label="Class" value={bn(classes.length)} caption="ক্লাস/ব্যাচ" />
         <StatTile delay={240} label="Ranks" value={bn(ranks.length)} caption="র‍্যাংক" />
         <StatTile delay={300} label="Dismissed" value={bn(dismissed)} caption="বহিষ্কার ক্যাডেট" accent />
