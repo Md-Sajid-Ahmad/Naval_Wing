@@ -9,6 +9,7 @@ import { AuthedShell } from "@/components/AuthedShell";
 
 import { bn, STATUS_BN } from "@/lib/bn";
 import { CadetAvatar } from "@/components/CadetAvatar";
+import { errorMessage } from "@/lib/error-message";
 
 export const Route = createFileRoute("/_authenticated/cadets/")({
   head: () => ({
