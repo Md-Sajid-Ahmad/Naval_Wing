@@ -8,7 +8,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 
-import { bn, RANK_BN, STATUS_BN } from "@/lib/bn";
+import { bn, RANK_BN, RANK_ORDER, sortRanks, STATUS_BN } from "@/lib/bn";
 import { CadetAvatar } from "@/components/CadetAvatar";
 import { errorMessage } from "@/lib/error-message";
 
