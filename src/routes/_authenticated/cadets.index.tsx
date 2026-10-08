@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_authenticated/cadets/")({
       { title: "ক্যাডেট ম্যানেজমেন্ট — BNCC Naval Wing" },
       {
         name: "description",
-        content: "ক্যাডেটদের তালিকা দেখুন, নাম বা আইডি দিয়ে খুঁজুন, ওয়ার্ড অনুযায়ী ফিল্টার করুন ও নতুন ক্যাডেট যোগ করুন।",
+        content: "ক্যাডেটদের তালিকা দেখুন, নাম বা আইডি দিয়ে খুঁজুন, র‍্যাংক অনুযায়ী ফিল্টার করুন ও নতুন ক্যাডেট যোগ করুন।",
       },
       { property: "og:title", content: "ক্যাডেট ম্যানেজমেন্ট — BNCC Naval Wing" },
       { property: "og:description", content: "ক্যাডেট তালিকা, সার্চ, ফিল্টার ও নতুন ক্যাডেট নিবন্ধন।" },
@@ -164,9 +164,8 @@ function CadetsPage() {
             <Field name="batch" label="ব্যাচ" placeholder="2025" />
           </div>
           <Field name="full_name" label="পূর্ণ নাম" placeholder="মোঃ রায়হান হোসেন" />
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-2 gap-2.5">
             <Field name="rank" label="র‍্যাংক" placeholder="Cadet" />
-            <Field name="ward" label="ওয়ার্ড" placeholder="A" />
             <Field name="phone" label="ফোন" placeholder="017…" />
           </div>
           <button
@@ -190,17 +189,17 @@ function CadetsPage() {
       </div>
 
       <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1">
-        {["all", ...wards].map((w) => (
+        {["all", ...ranks].map((w) => (
           <button
             key={w}
-            onClick={() => setWard(w)}
+            onClick={() => setRank(w)}
             className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-medium ring-1 ${
-              ward === w
+              rank === w
                 ? "bg-signal/15 text-signal ring-signal/30"
                 : "bg-secondary text-muted-foreground ring-border"
             }`}
           >
-            {w === "all" ? "সব" : `ওয়ার্ড ${w}`}
+            {w === "all" ? "সব" : RANK_BN[w] ?? w}
           </button>
         ))}
       </div>

@@ -35,7 +35,7 @@ function DashboardPage() {
     queryKey: ["dashboard"],
     queryFn: async () => {
       const [cadets, attendance] = await Promise.all([
-        supabase.from("cadets").select("id, full_name, cadet_id, rank, ward, status").order("cadet_id"),
+        supabase.from("cadets").select("id, full_name, cadet_id, rank, status").order("cadet_id"),
         supabase.from("attendance").select("cadet_id, status").eq("session_date", today()),
       ]);
       if (cadets.error) throw cadets.error;
@@ -48,7 +48,7 @@ function DashboardPage() {
   const active = cadets.filter((c) => c.status === "active");
   const present = (data?.attendance ?? []).filter((a) => a.status === "present").length;
   const rate = active.length ? Math.round((present / active.length) * 100) : 0;
-  const wards = Array.from(new Set(cadets.map((c) => c.ward))).sort();
+  const ranks = Array.from(new Set(cadets.map((c) => c.rank))).sort();
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "শুভ সকাল" : hour < 17 ? "শুভ অপরাহ্ন" : "শুভ সন্ধ্যা";
@@ -86,7 +86,7 @@ function DashboardPage() {
         <StatTile delay={120} label="Total Cadets" value={bn(cadets.length)} caption="মোট ক্যাডেট" />
         <StatTile delay={180} label="Attendance" value={bn(present)} caption="আজ উপস্থিত" accent />
         <StatTile delay={240} label="Active" value={bn(active.length)} caption="সক্রিয় ক্যাডেট" />
-        <StatTile delay={300} label="Wards" value={bn(wards.length)} caption="উইং/ওয়ার্ড" />
+        <StatTile delay={300} label="Ranks" value={bn(ranks.length)} caption="র‍্যাংক" />
       </div>
 
     </AuthedShell>
