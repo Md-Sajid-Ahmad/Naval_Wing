@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { t } from "@/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
@@ -22,10 +23,10 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
   errorComponent: ({ error }) => (
     <div role="alert" className="p-6 text-sm text-destructive">
-      ডেটা লোড করা যায়নি: {errorMessage(error)}
+      {t("ডেটা লোড করা যায়নি:")} {errorMessage(error)}
     </div>
   ),
-  notFoundComponent: () => <div className="p-6 text-sm">কিছু পাওয়া যায়নি।</div>,
+  notFoundComponent: () => <div className="p-6 text-sm">{t("কিছু পাওয়া যায়নি।")}</div>,
 });
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -51,14 +52,14 @@ function DashboardPage() {
   const ranks = Array.from(new Set(cadets.map((c) => c.rank))).sort();
 
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? "শুভ সকাল" : hour < 17 ? "শুভ অপরাহ্ন" : "শুভ সন্ধ্যা";
+  const greeting = hour < 12 ? t("শুভ সকাল") : hour < 17 ? t("শুভ অপরাহ্ন") : t("শুভ সন্ধ্যা");
 
   return (
     <AuthedShell>
       <div className="rise mb-5 flex items-end justify-between">
         <div>
-          <p className="text-[13px] text-muted-foreground">{greeting}, কমান্ডার</p>
-          <h1 className="text-2xl font-extrabold tracking-tight text-balance">অপারেশন ড্যাশবোর্ড</h1>
+          <p className="text-[13px] text-muted-foreground">{greeting}{t(", কমান্ডার")}</p>
+          <h1 className="text-2xl font-extrabold tracking-tight text-balance">{t("অপারেশন ড্যাশবোর্ড")}</h1>
         </div>
         <span className="text-right font-mono text-[10px] text-muted-foreground">
           {new Date().toISOString().slice(0, 10)}
@@ -71,9 +72,9 @@ function DashboardPage() {
         <div className="sweep pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12 bg-foreground/10" />
         <div className="relative flex items-center justify-between">
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-signal">Today · আজকের সর্বমোট</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-signal">{t("Today · আজকের সর্বমোট")}</p>
             <p className="mt-1 text-4xl font-extrabold tracking-tight">{bn(present)}</p>
-            <p className="text-xs text-muted-foreground">জন ক্যাডেট উপস্থিত</p>
+            <p className="text-xs text-muted-foreground">{t("জন ক্যাডেট উপস্থিত")}</p>
           </div>
           <div className="text-right">
             <p className="font-mono text-[10px] text-muted-foreground">ATTENDANCE</p>
@@ -83,10 +84,10 @@ function DashboardPage() {
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-3">
-        <StatTile delay={120} label="Total Cadets" value={bn(cadets.length)} caption="মোট ক্যাডেট" />
-        <StatTile delay={180} label="Attendance" value={bn(present)} caption="আজ উপস্থিত" accent />
-        <StatTile delay={240} label="Active" value={bn(active.length)} caption="সক্রিয় ক্যাডেট" />
-        <StatTile delay={300} label="Ranks" value={bn(ranks.length)} caption="র‍্যাংক" />
+        <StatTile delay={120} label="Total Cadets" value={bn(cadets.length)} caption={t("মোট ক্যাডেট")} />
+        <StatTile delay={180} label="Attendance" value={bn(present)} caption={t("আজ উপস্থিত")} accent />
+        <StatTile delay={240} label="Active" value={bn(active.length)} caption={t("সক্রিয় ক্যাডেট")} />
+        <StatTile delay={300} label="Ranks" value={bn(ranks.length)} caption={t("র‍্যাংক")} />
       </div>
 
     </AuthedShell>
