@@ -7,7 +7,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 
-import { bn, STATUS_BN } from "@/lib/bn";
+import { bn, RANK_BN, STATUS_BN } from "@/lib/bn";
 import { CadetAvatar } from "@/components/CadetAvatar";
 import { errorMessage } from "@/lib/error-message";
 
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_authenticated/cadets/")({
       { title: "ক্যাডেট ম্যানেজমেন্ট — BNCC Naval Wing" },
       {
         name: "description",
-        content: "ক্যাডেটদের তালিকা দেখুন, নাম বা আইডি দিয়ে খুঁজুন, ওয়ার্ড অনুযায়ী ফিল্টার করুন ও নতুন ক্যাডেট যোগ করুন।",
+        content: "ক্যাডেটদের তালিকা দেখুন, নাম বা আইডি দিয়ে খুঁজুন, র‍্যাংক অনুযায়ী ফিল্টার করুন ও নতুন ক্যাডেট যোগ করুন।",
       },
       { property: "og:title", content: "ক্যাডেট ম্যানেজমেন্ট — BNCC Naval Wing" },
       { property: "og:description", content: "ক্যাডেট তালিকা, সার্চ, ফিল্টার ও নতুন ক্যাডেট নিবন্ধন।" },
@@ -39,7 +39,6 @@ const cadetSchema = z.object({
   full_name: z.string().trim().min(2, "নাম দিন").max(100),
   rank: z.string().trim().max(40),
   batch: z.string().trim().max(10),
-  ward: z.string().trim().min(1).max(4),
   phone: z.string().trim().max(20).nullable(),
 });
 
@@ -49,7 +48,7 @@ function CadetsPage() {
   const qc = useQueryClient();
 
   const [term, setTerm] = useState("");
-  const [ward, setWard] = useState<string>("all");
+  const [rank, setRank] = useState<string>("all");
   const [open, setOpen] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
 
@@ -58,14 +57,14 @@ function CadetsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cadets")
-        .select("id, cadet_id, full_name, rank, batch, ward, status, photo_url")
+        .select("id, cadet_id, full_name, rank, batch, status, photo_url")
         .order("cadet_id");
       if (error) throw error;
       return data;
     },
   });
 
-  const wards = useMemo(() => Array.from(new Set(cadets.map((c) => c.ward))).sort(), [cadets]);
+  const ranks = useMemo(() => Array.from(new Set(cadets.map((c) => c.rank))).sort(), [cadets]);
 
   const filtered = cadets.filter((c) => {
     const t = term.trim().toLowerCase();
@@ -74,7 +73,7 @@ function CadetsPage() {
       c.full_name.toLowerCase().includes(t) ||
       c.cadet_id.toLowerCase().includes(t) ||
       c.rank.toLowerCase().includes(t);
-    return matchTerm && (ward === "all" || c.ward === ward);
+    return matchTerm && (rank === "all" || c.rank === rank);
   });
 
   const addCadet = useMutation({
@@ -110,7 +109,6 @@ function CadetsPage() {
       full_name: fd.get("full_name"),
       rank: fd.get("rank") || "Cadet",
       batch: fd.get("batch"),
-      ward: fd.get("ward") || "A",
       phone: fd.get("phone") || null,
     });
     if (!parsed.success) {
@@ -166,9 +164,8 @@ function CadetsPage() {
             <Field name="batch" label="ব্যাচ" placeholder="2025" />
           </div>
           <Field name="full_name" label="পূর্ণ নাম" placeholder="মোঃ রায়হান হোসেন" />
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-2 gap-2.5">
             <Field name="rank" label="র‍্যাংক" placeholder="Cadet" />
-            <Field name="ward" label="ওয়ার্ড" placeholder="A" />
             <Field name="phone" label="ফোন" placeholder="017…" />
           </div>
           <button
@@ -192,17 +189,17 @@ function CadetsPage() {
       </div>
 
       <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1">
-        {["all", ...wards].map((w) => (
+        {["all", ...ranks].map((w) => (
           <button
             key={w}
-            onClick={() => setWard(w)}
+            onClick={() => setRank(w)}
             className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-medium ring-1 ${
-              ward === w
+              rank === w
                 ? "bg-signal/15 text-signal ring-signal/30"
                 : "bg-secondary text-muted-foreground ring-border"
             }`}
           >
-            {w === "all" ? "সব" : `ওয়ার্ড ${w}`}
+            {w === "all" ? "সব" : RANK_BN[w] ?? w}
           </button>
         ))}
       </div>
@@ -224,7 +221,7 @@ function CadetsPage() {
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{c.full_name}</p>
                 <p className="truncate font-mono text-[10px] text-muted-foreground">
-                  ID · {c.cadet_id} / {c.rank}
+                  ID · {c.cadet_id} / {RANK_BN[c.rank] ?? c.rank}
                 </p>
               </div>
               <span
