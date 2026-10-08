@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { t } from "@/lib/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -77,7 +78,7 @@ function AttendancePage() {
     onSuccess: (result) => {
       qc.invalidateQueries({ queryKey: ["attendance"] });
       qc.invalidateQueries({ queryKey: ["dashboard"] });
-      if (result === "cleared") toast.success("চিহ্ন মুছে ফেলা হয়েছে");
+      if (result === "cleared") toast.success(t("চিহ্ন মুছে ফেলা হয়েছে"));
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -88,9 +89,9 @@ function AttendancePage() {
     <AuthedShell>
       <div className="rise mb-4">
         <p className="label-mono">Attendance Muster</p>
-        <h1 className="text-2xl font-extrabold tracking-tight">উপস্থিতি</h1>
+        <h1 className="text-2xl font-extrabold tracking-tight">{t("উপস্থিতি")}</h1>
         <p className="mt-1 text-[11px] text-muted-foreground">
-          ভুল হলে অন্য চিহ্ন চাপুন; নির্বাচিত চিহ্নে আবার চাপলে তা মুছে যাবে।
+          {t("ভুল হলে অন্য চিহ্ন চাপুন; নির্বাচিত চিহ্নে আবার চাপলে তা মুছে যাবে।")}
         </p>
       </div>
 

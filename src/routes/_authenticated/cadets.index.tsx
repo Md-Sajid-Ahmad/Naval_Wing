@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { t } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Search } from "lucide-react";
@@ -28,10 +29,10 @@ export const Route = createFileRoute("/_authenticated/cadets/")({
   component: CadetsPage,
   errorComponent: ({ error }) => (
     <div role="alert" className="p-6 text-sm text-destructive">
-      তালিকা লোড করা যায়নি: {errorMessage(error)}
+      {t("তালিকা লোড করা যায়নি:")} {errorMessage(error)}
     </div>
   ),
-  notFoundComponent: () => <div className="p-6 text-sm">কোনো ক্যাডেট পাওয়া যায়নি।</div>,
+  notFoundComponent: () => <div className="p-6 text-sm">{t("কোনো ক্যাডেট পাওয়া যায়নি।")}</div>,
 });
 
 const cadetSchema = z.object({
@@ -92,7 +93,7 @@ function CadetsPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("নতুন ক্যাডেট যোগ হয়েছে");
+      toast.success(t("নতুন ক্যাডেট যোগ হয়েছে"));
       setOpen(false);
       setPhoto(null);
       qc.invalidateQueries({ queryKey: ["cadets"] });
@@ -112,7 +113,7 @@ function CadetsPage() {
       phone: fd.get("phone") || null,
     });
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "তথ্য সঠিক নয়");
+      toast.error(t(parsed.error.issues[0]?.message ?? "তথ্য সঠিক নয়"));
       return;
     }
     addCadet.mutate({ form: parsed.data, file: photo });
@@ -123,32 +124,32 @@ function CadetsPage() {
       <div className="rise mb-4 flex items-end justify-between">
         <div>
           <p className="label-mono">Cadet Register</p>
-          <h1 className="text-2xl font-extrabold tracking-tight">ক্যাডেট তালিকা</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">{t("ক্যাডেট তালিকা")}</h1>
         </div>
         {isStaff && (
           <button
             onClick={() => setOpen((v) => !v)}
             className="flex items-center gap-1.5 rounded-lg bg-signal px-3 py-2 text-xs font-semibold text-primary-foreground"
           >
-            <Plus className="size-3.5" /> যোগ করুন
+            <Plus className="size-3.5" /> {t("যোগ করুন")}
           </button>
         )}
       </div>
 
       {open && isStaff && (
         <form onSubmit={submit} className="rise mb-4 space-y-2.5 rounded-2xl glass p-4">
-          <p className="label-mono">New cadet · নতুন ক্যাডেট</p>
+          <p className="label-mono">{t("New cadet · নতুন ক্যাডেট")}</p>
           <div className="flex items-center gap-3">
             <div className="grid size-14 place-items-center overflow-hidden rounded-xl bg-secondary ring-1 ring-border">
               {photo ? (
-                <img src={URL.createObjectURL(photo)} alt="ছবি" className="size-full object-cover" />
+                <img src={URL.createObjectURL(photo)} alt={t("ছবি")} className="size-full object-cover" />
               ) : (
-                <span className="text-[10px] text-muted-foreground">ছবি</span>
+                <span className="text-[10px] text-muted-foreground">{t("ছবি")}</span>
               )}
             </div>
             <div className="min-w-0 flex-1">
               <label className="label-mono" htmlFor="photo">
-                ক্যাডেটের ছবি
+                {t("ক্যাডেটের ছবি")}
               </label>
               <input
                 id="photo"
@@ -160,20 +161,20 @@ function CadetsPage() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2.5">
-            <Field name="cadet_id" label="ক্যাডেট আইডি" placeholder="BN-2301" />
-            <Field name="batch" label="ব্যাচ" placeholder="2025" />
+            <Field name="cadet_id" label={t("ক্যাডেট আইডি")} placeholder="BN-2301" />
+            <Field name="batch" label={t("ব্যাচ")} placeholder="2025" />
           </div>
-          <Field name="full_name" label="পূর্ণ নাম" placeholder="মোঃ রায়হান হোসেন" />
+          <Field name="full_name" label={t("পূর্ণ নাম")} placeholder={t("মোঃ রায়হান হোসেন")} />
           <div className="grid grid-cols-2 gap-2.5">
-            <Field name="rank" label="র‍্যাংক" placeholder="Cadet" />
-            <Field name="phone" label="ফোন" placeholder="017…" />
+            <Field name="rank" label={t("র‍্যাংক")} placeholder="Cadet" />
+            <Field name="phone" label={t("ফোন")} placeholder="017…" />
           </div>
           <button
             type="submit"
             disabled={addCadet.isPending}
             className="w-full rounded-lg bg-signal py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
           >
-            {addCadet.isPending ? "সংরক্ষণ হচ্ছে…" : "সংরক্ষণ করুন"}
+            {addCadet.isPending ? t("সংরক্ষণ হচ্ছে…") : t("সংরক্ষণ করুন")}
           </button>
         </form>
       )}
@@ -183,7 +184,7 @@ function CadetsPage() {
         <input
           value={term}
           onChange={(e) => setTerm(e.target.value)}
-          placeholder="নাম, আইডি বা র‍্যাংক খুঁজুন…"
+          placeholder={t("নাম, আইডি বা র‍্যাংক খুঁজুন…")}
           className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
         />
       </div>
@@ -199,7 +200,7 @@ function CadetsPage() {
                 : "bg-secondary text-muted-foreground ring-border"
             }`}
           >
-            {w === "all" ? "সব" : RANK_BN[w] ?? w}
+            {w === "all" ? t("সব") : RANK_BN[w] ?? w}
           </button>
         ))}
       </div>
@@ -234,7 +235,7 @@ function CadetsPage() {
             </Link>
           ))}
           {filtered.length === 0 && (
-            <p className="px-3 py-6 text-center text-sm text-muted-foreground">কোনো ক্যাডেট মেলেনি।</p>
+            <p className="px-3 py-6 text-center text-sm text-muted-foreground">{t("কোনো ক্যাডেট মেলেনি।")}</p>
           )}
         </div>
       </div>

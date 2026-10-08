@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { t } from "@/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -53,11 +54,11 @@ function CadetDetail() {
   return (
     <AuthedShell>
       <Link to="/cadets" className="mb-4 inline-flex items-center gap-1 text-xs text-muted-foreground">
-        <ChevronLeft className="size-3.5" /> ক্যাডেট তালিকা
+        <ChevronLeft className="size-3.5" /> {t("ক্যাডেট তালিকা")}
       </Link>
 
       {!cadet ? (
-        <p className="py-10 text-center text-sm text-muted-foreground">লোড হচ্ছে…</p>
+        <p className="py-10 text-center text-sm text-muted-foreground">{t("লোড হচ্ছে…")}</p>
       ) : (
         <>
           <div className="rise mb-4 flex items-center gap-3 rounded-2xl glass p-4">
@@ -72,13 +73,13 @@ function CadetDetail() {
           </div>
 
           <div className="mb-4 grid grid-cols-2 gap-2.5">
-            <Info label="ব্যাচ" value={cadet.batch ? bn(cadet.batch) : "—"} />
-            <Info label="স্ট্যাটাস" value={STATUS_BN[cadet.status] ?? cadet.status} />
-            <Info label="ফোন" value={cadet.phone ? bn(cadet.phone) : "—"} />
-            <Info label="যোগদান" value={cadet.joined_on ? bn(cadet.joined_on) : "—"} />
+            <Info label={t("ব্যাচ")} value={cadet.batch ? bn(cadet.batch) : "—"} />
+            <Info label={t("স্ট্যাটাস")} value={STATUS_BN[cadet.status] ?? cadet.status} />
+            <Info label={t("ফোন")} value={cadet.phone ? bn(cadet.phone) : "—"} />
+            <Info label={t("যোগদান")} value={cadet.joined_on ? bn(cadet.joined_on) : "—"} />
           </div>
 
-          <p className="label-mono mb-2">Recent attendance · সাম্প্রতিক উপস্থিতি</p>
+          <p className="label-mono mb-2">{t("Recent attendance · সাম্প্রতিক উপস্থিতি")}</p>
           <div className="overflow-hidden rounded-xl glass divide-y divide-border">
             {records.map((r) => (
               <div key={r.id} className="flex items-center justify-between px-3 py-2.5">
@@ -87,7 +88,7 @@ function CadetDetail() {
               </div>
             ))}
             {records.length === 0 && (
-              <p className="px-3 py-6 text-center text-sm text-muted-foreground">কোনো রেকর্ড নেই।</p>
+              <p className="px-3 py-6 text-center text-sm text-muted-foreground">{t("কোনো রেকর্ড নেই।")}</p>
             )}
           </div>
         </>

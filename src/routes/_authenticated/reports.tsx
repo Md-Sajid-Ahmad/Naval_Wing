@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { t } from "@/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
@@ -45,17 +46,17 @@ function ReportsPage() {
     <AuthedShell>
       <div className="rise mb-4">
         <p className="label-mono">Summary Reports</p>
-        <h1 className="text-2xl font-extrabold tracking-tight">রিপোর্ট</h1>
+        <h1 className="text-2xl font-extrabold tracking-tight">{t("রিপোর্ট")}</h1>
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-2.5">
-        <Stat label="মোট ক্যাডেট" value={bn(cadets.length)} />
-        <Stat label="সক্রিয়" value={bn(cadets.filter((c) => c.status === "active").length)} />
-        <Stat label="মোট রেকর্ড" value={bn(attendance.length)} />
-        <Stat label="উপস্থিতির হার" value={`${bn(rate)}%`} />
+        <Stat label={t("মোট ক্যাডেট")} value={bn(cadets.length)} />
+        <Stat label={t("সক্রিয়")} value={bn(cadets.filter((c) => c.status === "active").length)} />
+        <Stat label={t("মোট রেকর্ড")} value={bn(attendance.length)} />
+        <Stat label={t("উপস্থিতির হার")} value={`${bn(rate)}%`} />
       </div>
 
-      <p className="label-mono mb-2">Rank breakdown · র‍্যাংকভিত্তিক</p>
+      <p className="label-mono mb-2">{t("Rank breakdown · র‍্যাংকভিত্তিক")}</p>
       <div className="overflow-hidden rounded-xl glass divide-y divide-border">
         {ranks.map((r) => (
           <div key={r} className="flex items-center justify-between px-3 py-2.5">
@@ -66,7 +67,7 @@ function ReportsPage() {
           </div>
         ))}
         {ranks.length === 0 && (
-          <p className="px-3 py-6 text-center text-sm text-muted-foreground">কোনো তথ্য নেই।</p>
+          <p className="px-3 py-6 text-center text-sm text-muted-foreground">{t("কোনো তথ্য নেই।")}</p>
         )}
       </div>
     </AuthedShell>
