@@ -13,16 +13,31 @@ export function bn2(value: number): string {
   return bn(String(value).padStart(2, "0"));
 }
 
+/** Official rank order: lowest to highest. */
+export const RANK_ORDER = [
+  "Cadet",
+  "Lance Corporal",
+  "Corporal",
+  "Sergeant",
+  "CUO",
+] as const;
+
 export const RANK_BN: Record<string, string> = localized({
   Cadet: "ক্যাডেট",
-  "Senior Cadet": "সিনিয়র ক্যাডেট",
-  LCPL: "লান্স কর্পোরাল",
-  CPL: "কর্পোরাল",
+  "Lance Corporal": "লান্স কর্পোরাল",
   Corporal: "কর্পোরাল",
-  SGT: "সার্জেন্ট",
   Sergeant: "সার্জেন্ট",
-  "Under Officer": "আন্ডার অফিসার",
+  CUO: "সিইউও",
 });
+
+/** Sort rank names by official order; unknown ranks go last. */
+export function sortRanks(ranks: string[]): string[] {
+  return [...ranks].sort((a, b) => {
+    const ia = RANK_ORDER.indexOf(a as (typeof RANK_ORDER)[number]);
+    const ib = RANK_ORDER.indexOf(b as (typeof RANK_ORDER)[number]);
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib) || a.localeCompare(b);
+  });
+}
 
 export const STATUS_BN: Record<string, string> = localized({
   active: "সক্রিয়",
