@@ -75,12 +75,30 @@ function AttendancePage() {
       if (error) throw error;
       return "marked" as const;
     },
+    // চাপ দেওয়ার সাথে সাথেই চিহ্ন দেখায় — সার্ভারের উত্তরের অপেক্ষা করে না।
+    onMutate: async ({ cadetId, status }) => {
+      const key = ["attendance", date];
+      await qc.cancelQueries({ queryKey: key });
+      const prev = qc.getQueryData<{ id: string; cadet_id: string; status: string }[]>(key);
+      const clearing = map.get(cadetId) === status;
+      qc.setQueryData(key, (old: { id: string; cadet_id: string; status: string }[] = []) =>
+        clearing
+          ? old.filter((r) => r.cadet_id !== cadetId)
+          : [...old.filter((r) => r.cadet_id !== cadetId), { id: `tmp-${cadetId}`, cadet_id: cadetId, status }],
+      );
+      return { prev };
+    },
     onSuccess: (result) => {
-      qc.invalidateQueries({ queryKey: ["attendance"] });
-      qc.invalidateQueries({ queryKey: ["dashboard"] });
       if (result === "cleared") toast.success(t("চিহ্ন মুছে ফেলা হয়েছে"));
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error, _vars, ctx) => {
+      if (ctx?.prev) qc.setQueryData(["attendance", date], ctx.prev);
+      toast.error(e.message);
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ["attendance"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+    },
   });
 
   const present = records.filter((r) => r.status === "present").length;
