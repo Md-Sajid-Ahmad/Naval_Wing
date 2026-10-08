@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
   errorComponent: ({ error }) => (
     <div role="alert" className="p-6 text-sm text-destructive">
-      ডেটা লোড করা যায়নি: {error.message}
+      ডেটা লোড করা যায়নি: {errorMessage(error)}
     </div>
   ),
   notFoundComponent: () => <div className="p-6 text-sm">কিছু পাওয়া যায়নি।</div>,
