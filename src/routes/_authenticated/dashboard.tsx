@@ -3,6 +3,7 @@ import { t } from "@/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
+import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { bn, bn2 } from "@/lib/bn";
 import { errorMessage } from "@/lib/error-message";
 
@@ -67,6 +68,8 @@ function DashboardPage() {
           {bn2(new Date().getHours())}:{bn2(new Date().getMinutes())} BD
         </span>
       </div>
+
+      <LanguageSwitch />
 
       <div className="rise relative mb-5 overflow-hidden rounded-2xl glass p-4" style={{ animationDelay: "60ms" }}>
         <div className="sweep pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12 bg-foreground/10" />
