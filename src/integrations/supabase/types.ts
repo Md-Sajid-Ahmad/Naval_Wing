@@ -52,6 +52,7 @@ export type Database = {
           cadet_id: string
           created_at: string
           full_name: string
+          gender: string
           id: string
           joined_on: string
           phone: string | null
@@ -66,6 +67,7 @@ export type Database = {
           cadet_id: string
           created_at?: string
           full_name: string
+          gender?: string
           id?: string
           joined_on?: string
           phone?: string | null
@@ -80,6 +82,7 @@ export type Database = {
           cadet_id?: string
           created_at?: string
           full_name?: string
+          gender?: string
           id?: string
           joined_on?: string
           phone?: string | null
