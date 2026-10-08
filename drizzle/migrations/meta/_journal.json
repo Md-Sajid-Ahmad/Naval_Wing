@@ -15,6 +15,13 @@
       "when": 1789997660862,
       "tag": "0001_cadet_photos_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791441907408,
+      "tag": "0002_restrict_profiles_select",
+      "breakpoints": true
     }
   ]
 }
