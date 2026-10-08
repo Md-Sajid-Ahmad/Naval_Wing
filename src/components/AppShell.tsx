@@ -4,11 +4,11 @@ import { Link } from "@tanstack/react-router";
 import { LayoutGrid, Users, CheckSquare, Mail, FileBarChart } from "lucide-react";
 
 const TABS = [
-  { to: "/dashboard", label: t("ড্যাশবোর্ড"), icon: LayoutGrid },
-  { to: "/cadets", label: t("ক্যাডেট"), icon: Users },
-  { to: "/attendance", label: t("উপস্থিতি"), icon: CheckSquare },
-  { to: "/letters", label: t("চিঠি"), icon: Mail },
-  { to: "/reports", label: t("রিপোর্ট"), icon: FileBarChart },
+  { to: "/dashboard", label: ("ড্যাশবোর্ড"), icon: LayoutGrid },
+  { to: "/cadets", label: ("ক্যাডেট"), icon: Users },
+  { to: "/attendance", label: ("উপস্থিতি"), icon: CheckSquare },
+  { to: "/letters", label: ("চিঠি"), icon: Mail },
+  { to: "/reports", label: ("রিপোর্ট"), icon: FileBarChart },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -34,7 +34,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               activeProps={{ className: "text-signal" }}
             >
               <tab.icon className="size-4" />
-              <span className="text-[10px] font-medium">{tab.label}</span>
+              <span className="text-[10px] font-medium">{t(tab.label)}</span>
             </Link>
           ))}
         </div>

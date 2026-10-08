@@ -113,7 +113,7 @@ function CadetsPage() {
       phone: fd.get("phone") || null,
     });
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? t("তথ্য সঠিক নয়"));
+      toast.error(t(parsed.error.issues[0]?.message ?? "তথ্য সঠিক নয়"));
       return;
     }
     addCadet.mutate({ form: parsed.data, file: photo });
