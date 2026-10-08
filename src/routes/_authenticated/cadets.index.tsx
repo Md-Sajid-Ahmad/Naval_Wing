@@ -7,7 +7,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 
-import { bn, STATUS_BN } from "@/lib/bn";
+import { bn, RANK_BN, STATUS_BN } from "@/lib/bn";
 import { CadetAvatar } from "@/components/CadetAvatar";
 import { errorMessage } from "@/lib/error-message";
 
@@ -39,7 +39,6 @@ const cadetSchema = z.object({
   full_name: z.string().trim().min(2, "নাম দিন").max(100),
   rank: z.string().trim().max(40),
   batch: z.string().trim().max(10),
-  ward: z.string().trim().min(1).max(4),
   phone: z.string().trim().max(20).nullable(),
 });
 
@@ -49,7 +48,7 @@ function CadetsPage() {
   const qc = useQueryClient();
 
   const [term, setTerm] = useState("");
-  const [ward, setWard] = useState<string>("all");
+  const [rank, setRank] = useState<string>("all");
   const [open, setOpen] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
 
@@ -58,14 +57,14 @@ function CadetsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cadets")
-        .select("id, cadet_id, full_name, rank, batch, ward, status, photo_url")
+        .select("id, cadet_id, full_name, rank, batch, status, photo_url")
         .order("cadet_id");
       if (error) throw error;
       return data;
     },
   });
 
-  const wards = useMemo(() => Array.from(new Set(cadets.map((c) => c.ward))).sort(), [cadets]);
+  const ranks = useMemo(() => Array.from(new Set(cadets.map((c) => c.rank))).sort(), [cadets]);
 
   const filtered = cadets.filter((c) => {
     const t = term.trim().toLowerCase();
@@ -74,7 +73,7 @@ function CadetsPage() {
       c.full_name.toLowerCase().includes(t) ||
       c.cadet_id.toLowerCase().includes(t) ||
       c.rank.toLowerCase().includes(t);
-    return matchTerm && (ward === "all" || c.ward === ward);
+    return matchTerm && (rank === "all" || c.rank === rank);
   });
 
   const addCadet = useMutation({
@@ -110,7 +109,6 @@ function CadetsPage() {
       full_name: fd.get("full_name"),
       rank: fd.get("rank") || "Cadet",
       batch: fd.get("batch"),
-      ward: fd.get("ward") || "A",
       phone: fd.get("phone") || null,
     });
     if (!parsed.success) {

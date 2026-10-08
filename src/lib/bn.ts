@@ -13,7 +13,10 @@ export function bn2(value: number): string {
 export const RANK_BN: Record<string, string> = {
   Cadet: "ক্যাডেট",
   "Senior Cadet": "সিনিয়র ক্যাডেট",
+  LCPL: "লান্স কর্পোরাল",
+  CPL: "কর্পোরাল",
   Corporal: "কর্পোরাল",
+  SGT: "সার্জেন্ট",
   Sergeant: "সার্জেন্ট",
   "Under Officer": "আন্ডার অফিসার",
 };
