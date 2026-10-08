@@ -65,7 +65,7 @@ function CadetsPage() {
     },
   });
 
-  const ranks = useMemo(() => Array.from(new Set(cadets.map((c) => c.rank))).sort(), [cadets]);
+  const ranks = useMemo(() => sortRanks(Array.from(new Set(cadets.map((c) => c.rank)))), [cadets]);
 
   const filtered = cadets.filter((c) => {
     const t = term.trim().toLowerCase();
@@ -166,7 +166,22 @@ function CadetsPage() {
           </div>
           <Field name="full_name" label={t("পূর্ণ নাম")} placeholder={t("মোঃ রায়হান হোসেন")} />
           <div className="grid grid-cols-2 gap-2.5">
-            <Field name="rank" label={t("র‍্যাংক")} placeholder="Cadet" />
+            <label className="block">
+              <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t("র‍্যাংক")}
+              </span>
+              <select
+                name="rank"
+                defaultValue="Cadet"
+                className="w-full rounded-lg border border-border bg-input px-3 py-2 text-sm"
+              >
+                {RANK_ORDER.map((r) => (
+                  <option key={r} value={r}>
+                    {RANK_BN[r] ?? r}
+                  </option>
+                ))}
+              </select>
+            </label>
             <Field name="phone" label={t("ফোন")} placeholder="017…" />
           </div>
           <button
