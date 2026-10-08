@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
-import { bn, bn2, STATUS_BN, initial } from "@/lib/bn";
+import { bn, bn2 } from "@/lib/bn";
+import { errorMessage } from "@/lib/error-message";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
   errorComponent: ({ error }) => (
     <div role="alert" className="p-6 text-sm text-destructive">
-      ডেটা লোড করা যায়নি: {error.message}
+      ডেটা লোড করা যায়নি: {errorMessage(error)}
     </div>
   ),
   notFoundComponent: () => <div className="p-6 text-sm">কিছু পাওয়া যায়নি।</div>,
@@ -88,49 +89,6 @@ function DashboardPage() {
         <StatTile delay={300} label="Wards" value={bn(wards.length)} caption="উইং/ওয়ার্ড" />
       </div>
 
-      <div className="rise mb-3 flex items-center justify-between" style={{ animationDelay: "360ms" }}>
-        <p className="text-sm font-bold tracking-tight">
-          ক্যাডেট তালিকা <span className="font-mono text-[10px] text-muted-foreground">/ Cadets</span>
-        </p>
-        <Link to="/cadets" className="font-mono text-[10px] text-muted-foreground">
-          {bn2(Math.min(cadets.length, 6))} / {bn(cadets.length)}
-        </Link>
-      </div>
-
-      {wards.slice(0, 2).map((ward) => (
-        <div key={ward} className="mb-3 overflow-hidden rounded-xl glass">
-          <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-            <span className="size-1.5 rounded-full bg-signal" />
-            <p className="label-mono">{ward} Ward · ওয়ার্ড {ward}</p>
-          </div>
-          <div className="divide-y divide-border">
-            {cadets
-              .filter((c) => c.ward === ward)
-              .slice(0, 3)
-              .map((c) => (
-                <Link
-                  key={c.id}
-                  to="/cadets/$cadetId"
-                  params={{ cadetId: c.id }}
-                  className="flex items-center gap-3 px-3 py-2.5"
-                >
-                  <div className="grid size-9 place-items-center rounded-md bg-secondary text-xs font-bold ring-1 ring-border">
-                    {initial(c.full_name)}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold">{c.full_name}</p>
-                    <p className="truncate font-mono text-[10px] text-muted-foreground">
-                      ID · {c.cadet_id} / {c.rank}
-                    </p>
-                  </div>
-                  <span className="rounded bg-secondary px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
-                    {STATUS_BN[c.status]}
-                  </span>
-                </Link>
-              ))}
-          </div>
-        </div>
-      ))}
     </AuthedShell>
   );
 }
