@@ -3,7 +3,7 @@ import { t } from "@/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
-import { bn, RANK_BN } from "@/lib/bn";
+import { bn, RANK_BN, sortRanks } from "@/lib/bn";
 
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({
