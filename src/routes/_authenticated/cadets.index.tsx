@@ -222,7 +222,7 @@ function CadetsPage() {
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{c.full_name}</p>
                 <p className="truncate font-mono text-[10px] text-muted-foreground">
-                  ID · {c.cadet_id} / {c.rank}
+                  ID · {c.cadet_id} / {RANK_BN[c.rank] ?? c.rank}
                 </p>
               </div>
               <span
