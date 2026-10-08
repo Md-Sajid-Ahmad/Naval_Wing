@@ -2,15 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
-import { bn, RANK_BN, RANKS } from "@/lib/bn";
+import { bn } from "@/lib/bn";
 
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({
     meta: [
       { title: "রিপোর্ট — BNCC Naval Wing" },
-      { name: "description", content: "র‍্যাংক ও উপস্থিতির সারাংশ রিপোর্ট — ক্যাডেট সংখ্যা ও উপস্থিতির হার।" },
+      { name: "description", content: "ওয়ার্ড ও উপস্থিতির সারাংশ রিপোর্ট — ক্যাডেট সংখ্যা ও উপস্থিতির হার।" },
       { property: "og:title", content: "রিপোর্ট — BNCC Naval Wing" },
-      { property: "og:description", content: "র‍্যাংকভিত্তিক ক্যাডেট ও উপস্থিতির সারাংশ।" },
+      { property: "og:description", content: "ওয়ার্ডভিত্তিক ক্যাডেট ও উপস্থিতির সারাংশ।" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -22,7 +22,7 @@ function ReportsPage() {
   const { data: cadets = [] } = useQuery({
     queryKey: ["cadets"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("cadets").select("id, rank, status");
+      const { data, error } = await supabase.from("cadets").select("id, ward, status");
       if (error) throw error;
       return data;
     },
@@ -37,7 +37,7 @@ function ReportsPage() {
     },
   });
 
-  const ranks = RANKS.filter((r) => cadets.some((c) => c.rank === r));
+  const wards = Array.from(new Set(cadets.map((c) => c.ward))).sort();
   const presentCount = attendance.filter((a) => a.status === "present").length;
   const rate = attendance.length ? Math.round((presentCount / attendance.length) * 100) : 0;
 
@@ -55,19 +55,17 @@ function ReportsPage() {
         <Stat label="উপস্থিতির হার" value={`${bn(rate)}%`} />
       </div>
 
-      <p className="label-mono mb-2">Rank breakdown · র‍্যাংকভিত্তিক</p>
+      <p className="label-mono mb-2">Ward breakdown · ওয়ার্ডভিত্তিক</p>
       <div className="overflow-hidden rounded-xl glass divide-y divide-border">
-        {ranks.map((r) => (
-          <div key={r} className="flex items-center justify-between px-3 py-2.5">
-            <span className="text-sm font-semibold">
-              {r} · {RANK_BN[r]}
-            </span>
+        {wards.map((w) => (
+          <div key={w} className="flex items-center justify-between px-3 py-2.5">
+            <span className="text-sm font-semibold">ওয়ার্ড {w}</span>
             <span className="font-mono text-[11px] text-muted-foreground">
-              {bn(cadets.filter((c) => c.rank === r).length)} CADETS
+              {bn(cadets.filter((c) => c.ward === w).length)} CADETS
             </span>
           </div>
         ))}
-        {ranks.length === 0 && (
+        {wards.length === 0 && (
           <p className="px-3 py-6 text-center text-sm text-muted-foreground">কোনো তথ্য নেই।</p>
         )}
       </div>
