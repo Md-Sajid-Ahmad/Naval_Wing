@@ -38,7 +38,7 @@ function ReportsPage() {
     },
   });
 
-  const ranks = Array.from(new Set(cadets.map((c) => c.rank))).sort();
+  const ranks = sortRanks(Array.from(new Set(cadets.map((c) => c.rank))));
   const presentCount = attendance.filter((a) => a.status === "present").length;
   const rate = attendance.length ? Math.round((presentCount / attendance.length) * 100) : 0;
 
