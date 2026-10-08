@@ -3,7 +3,7 @@ import { t } from "@/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
-import { bn, RANK_BN } from "@/lib/bn";
+import { bn, RANK_BN, sortRanks } from "@/lib/bn";
 
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({
@@ -38,7 +38,7 @@ function ReportsPage() {
     },
   });
 
-  const ranks = Array.from(new Set(cadets.map((c) => c.rank))).sort();
+  const ranks = sortRanks(Array.from(new Set(cadets.map((c) => c.rank))));
   const presentCount = attendance.filter((a) => a.status === "present").length;
   const rate = attendance.length ? Math.round((presentCount / attendance.length) * 100) : 0;
 

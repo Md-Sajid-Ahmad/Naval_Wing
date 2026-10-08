@@ -108,11 +108,10 @@ const EN: Record<string, string> = {
   "চিঠি তৈরি, নম্বরিং ও ডিজিটাল সিগনেচার পরবর্তী ধাপে যুক্ত হবে।":
     "Letter creation, numbering and digital signatures will be added next.",
   // ranks & statuses
-  "সিনিয়র ক্যাডেট": "Senior Cadet",
   "লান্স কর্পোরাল": "Lance Corporal",
   "কর্পোরাল": "Corporal",
   "সার্জেন্ট": "Sergeant",
-  "আন্ডার অফিসার": "Under Officer",
+  "সিইউও": "CUO",
   "নিষ্ক্রিয়": "Inactive",
   "উত্তীর্ণ": "Passed out",
   "উপস্থিত": "Present",
