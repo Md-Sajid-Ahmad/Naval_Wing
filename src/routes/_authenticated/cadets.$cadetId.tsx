@@ -4,8 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
-import { bn, RANK_BN, STATUS_BN } from "@/lib/bn";
-import { initial } from "@/lib/bn";
+import { useState } from "react";
+import { bn, initial, RANK_BN, STATUS_BN } from "@/lib/bn";
 
 export const Route = createFileRoute("/_authenticated/cadets/$cadetId")({
   head: () => ({
@@ -76,19 +76,23 @@ function CadetDetail() {
       ) : (
         <>
           <figure className="rise mb-4 overflow-hidden rounded-2xl glass">
-            <div className="relative aspect-[4/5] max-h-[58vh] w-full">
-              {photoUrl ? (
+            <div className="relative aspect-[4/5] max-h-[58vh] w-full bg-secondary">
+              <div className="absolute inset-0 grid place-items-center">
+                <span className="text-[7rem] leading-none font-extrabold text-muted-foreground">
+                  {initial(cadet.full_name)}
+                </span>
+              </div>
+              {photoUrl && (
                 <img
                   src={photoUrl}
                   alt={cadet.full_name ?? t("ক্যাডেট")}
-                  className="absolute inset-0 size-full object-cover"
+                  decoding="async"
+                  onLoad={() => setShot(true)}
+                  onError={() => setShot(false)}
+                  className={`absolute inset-0 size-full object-cover transition-opacity duration-500 ${
+                    shot ? "opacity-100" : "opacity-0"
+                  }`}
                 />
-              ) : (
-                <div className="absolute inset-0 grid place-items-center bg-secondary">
-                  <span className="text-[7rem] leading-none font-extrabold text-muted-foreground">
-                    {initial(cadet.full_name)}
-                  </span>
-                </div>
               )}
             </div>
             <figcaption className="border-t border-border px-4 py-3">
