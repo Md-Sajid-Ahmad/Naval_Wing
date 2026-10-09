@@ -23,7 +23,8 @@ export const Route = createFileRoute("/_authenticated/attendance")({
   component: AttendancePage,
 });
 
-const OPTIONS = ["present", "absent", "excused"] as const;
+const OPTIONS = ["present", "absent", "excused", "unreported"] as const;
+type MarkStatus = (typeof OPTIONS)[number];
 
 function AttendancePage() {
   // লগইন ছাড়াই খোলা অ্যাপ — সবাই উপস্থিতি নিতে পারবে।

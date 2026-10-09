@@ -46,6 +46,7 @@ export const STATUS_BN: Record<string, string> = localized({
   present: "উপস্থিত",
   absent: "অনুপস্থিত",
   excused: "ছুটি",
+  unreported: "রিপোর্ট করে নাই",
 });
 
 export const ROLE_BN: Record<string, string> = localized({
