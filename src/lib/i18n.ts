@@ -127,6 +127,7 @@ const EN: Record<string, string> = {
   "নাম": "Name",
   "হার": "Rate",
   // detail
+  "যোগ হয়েছে": "Added",
   "লোড হচ্ছে…": "Loading…",
   "স্ট্যাটাস": "Status",
   "যোগদান": "Joined",

@@ -18,6 +18,7 @@ import { Route as AuthenticatedLettersRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedCadetsIndexRouteImport } from './routes/_authenticated/cadets.index'
 import { Route as AuthenticatedCadetsCadetIdRouteImport } from './routes/_authenticated/cadets.$cadetId'
+import { Route as AuthenticatedEquipmentEquipmentIdRouteImport } from './routes/_authenticated/equipment_.$equipmentId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -65,6 +66,12 @@ const AuthenticatedCadetsCadetIdRoute =
     path: '/cadets/$cadetId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedEquipmentEquipmentIdRoute =
+  AuthenticatedEquipmentEquipmentIdRouteImport.update({
+    id: '/equipment_/$equipmentId',
+    path: '/equipment/$equipmentId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/letters': typeof AuthenticatedLettersRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/cadets/$cadetId': typeof AuthenticatedCadetsCadetIdRoute
+  '/equipment/$equipmentId': typeof AuthenticatedEquipmentEquipmentIdRoute
   '/cadets/': typeof AuthenticatedCadetsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -84,6 +92,7 @@ export interface FileRoutesByTo {
   '/letters': typeof AuthenticatedLettersRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/cadets/$cadetId': typeof AuthenticatedCadetsCadetIdRoute
+  '/equipment/$equipmentId': typeof AuthenticatedEquipmentEquipmentIdRoute
   '/cadets': typeof AuthenticatedCadetsIndexRoute
 }
 export interface FileRoutesById {
@@ -96,6 +105,7 @@ export interface FileRoutesById {
   '/_authenticated/letters': typeof AuthenticatedLettersRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/cadets/$cadetId': typeof AuthenticatedCadetsCadetIdRoute
+  '/_authenticated/equipment_/$equipmentId': typeof AuthenticatedEquipmentEquipmentIdRoute
   '/_authenticated/cadets/': typeof AuthenticatedCadetsIndexRoute
 }
 export interface FileRouteTypes {
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/letters'
     | '/reports'
     | '/cadets/$cadetId'
+    | '/equipment/$equipmentId'
     | '/cadets/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/letters'
     | '/reports'
     | '/cadets/$cadetId'
+    | '/equipment/$equipmentId'
     | '/cadets'
   id:
     | '__root__'
@@ -129,6 +141,7 @@ export interface FileRouteTypes {
     | '/_authenticated/letters'
     | '/_authenticated/reports'
     | '/_authenticated/cadets/$cadetId'
+    | '/_authenticated/equipment_/$equipmentId'
     | '/_authenticated/cadets/'
   fileRoutesById: FileRoutesById
 }
@@ -202,6 +215,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCadetsCadetIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/equipment_/$equipmentId': {
+      id: '/_authenticated/equipment_/$equipmentId'
+      path: '/equipment/$equipmentId'
+      fullPath: '/equipment/$equipmentId'
+      preLoaderRoute: typeof AuthenticatedEquipmentEquipmentIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -212,6 +232,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedLettersRoute: typeof AuthenticatedLettersRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedCadetsCadetIdRoute: typeof AuthenticatedCadetsCadetIdRoute
+  AuthenticatedEquipmentEquipmentIdRoute: typeof AuthenticatedEquipmentEquipmentIdRoute
   AuthenticatedCadetsIndexRoute: typeof AuthenticatedCadetsIndexRoute
 }
 
@@ -222,6 +243,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLettersRoute: AuthenticatedLettersRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedCadetsCadetIdRoute: AuthenticatedCadetsCadetIdRoute,
+  AuthenticatedEquipmentEquipmentIdRoute:
+    AuthenticatedEquipmentEquipmentIdRoute,
   AuthenticatedCadetsIndexRoute: AuthenticatedCadetsIndexRoute,
 }
 

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { t } from "@/lib/i18n";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -264,13 +264,15 @@ function EquipmentPage() {
         <div className="divide-y divide-border">
           {filtered.map((it) => (
             <div key={it.id} className="flex items-center gap-3 px-3 py-2.5">
-              <CadetAvatar path={it.photo_url} name={it.name} size={40} bucket="equipment-photos" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">{it.name}</p>
-                <p className="truncate font-mono text-[10px] text-muted-foreground">
-                  {t(CATEGORY_BN[it.category] ?? it.category)} · {t("সংখ্যা")} {bn(it.quantity)}
-                </p>
-              </div>
+              <Link to="/equipment/$equipmentId" params={{ equipmentId: it.id }} className="flex min-w-0 flex-1 items-center gap-3">
+                <CadetAvatar path={it.photo_url} name={it.name} size={40} bucket="equipment-photos" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold">{it.name}</p>
+                  <p className="truncate font-mono text-[10px] text-muted-foreground">
+                    {t(CATEGORY_BN[it.category] ?? it.category)} · {t("সংখ্যা")} {bn(it.quantity)}
+                  </p>
+                </div>
+              </Link>
               <span
                 className={`rounded px-2 py-0.5 font-mono text-[10px] ${
                   it.condition === "good" ? "bg-signal/15 text-signal" : "bg-destructive/15 text-destructive"
