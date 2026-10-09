@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 import { useState } from "react";
 import { bn, initial, RANK_BN, STATUS_BN } from "@/lib/bn";
+import { isInactive } from "@/lib/muster";
 import { CadetEquipment } from "@/components/CadetEquipment";
 
 export const Route = createFileRoute("/_authenticated/cadets/$cadetId")({
@@ -67,6 +68,21 @@ function CadetDetail() {
     },
   });
 
+  // মোট অনুপস্থিতর সংখ্যা — ৩ বা বেশি হলে ক্যাডেট নন-একটিভ (রিপোর্টর নিয়মই)।
+  const { data: absentCount = 0 } = useQuery({
+    queryKey: ["cadet-absent-count", cadetId],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("attendance")
+        .select("id", { count: "exact", head: true })
+        .eq("cadet_id", cadetId)
+        .eq("status", "absent");
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+  const inactive = isInactive(absentCount);
+
   return (
     <AuthedShell>
       <Link to="/cadets" className="mb-4 inline-flex items-center gap-1 text-xs text-muted-foreground">
@@ -106,7 +122,11 @@ function CadetDetail() {
 
           <div className="mb-4 grid grid-cols-2 gap-2.5">
             <Info label={t("ব্যাচ")} value={cadet.batch ? bn(cadet.batch) : "—"} />
-            <Info label={t("স্ট্যাটাস")} value={STATUS_BN[cadet.status] ?? cadet.status} />
+            <Info
+              label={t("স্ট্যাটাস")}
+              value={inactive ? t("নন-একটিভ") : t("একটিভ")}
+              danger={inactive}
+            />
             <Info label={t("ফোন")} value={cadet.phone ? bn(cadet.phone) : "—"} />
             <Info label={t("যোগদান")} value={cadet.joined_on ? bn(cadet.joined_on) : "—"} />
           </div>
@@ -131,11 +151,11 @@ function CadetDetail() {
   );
 }
 
-function Info({ label, value }: { label: string; value: string }) {
+function Info({ label, value, danger }: { label: string; value: string; danger?: boolean }) {
   return (
     <div className="rounded-xl glass p-3">
       <p className="label-mono">{label}</p>
-      <p className="mt-1 text-sm font-semibold">{value}</p>
+      <p className={`mt-1 text-sm font-semibold ${danger ? "text-destructive" : ""}`}>{value}</p>
     </div>
   );
 }
