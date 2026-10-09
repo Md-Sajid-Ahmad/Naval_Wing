@@ -1,12 +1,13 @@
 import type { ReactNode } from "react";
 import { t } from "@/lib/i18n";
 import { Link } from "@tanstack/react-router";
-import { LayoutGrid, Users, CheckSquare, Mail, FileBarChart } from "lucide-react";
+import { LayoutGrid, Users, CheckSquare, Mail, FileBarChart, Package } from "lucide-react";
 
 const TABS = [
   { to: "/dashboard", label: ("ড্যাশবোর্ড"), icon: LayoutGrid },
   { to: "/cadets", label: ("ক্যাডেট"), icon: Users },
   { to: "/attendance", label: ("উপস্থিতি"), icon: CheckSquare },
+  { to: "/equipment", label: ("মালামাল"), icon: Package },
   { to: "/letters", label: ("চিঠি"), icon: Mail },
   { to: "/reports", label: ("রিপোর্ট"), icon: FileBarChart },
 ] as const;
@@ -25,7 +26,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="mx-auto max-w-[430px] px-4 pb-28 pt-5">{children}</main>
 
       <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[430px] border-t border-border bg-navy/95 [transform:translateZ(0)]">
-        <div className="grid h-16 grid-cols-5">
+        <div className="grid h-16 grid-cols-6">
           {TABS.map((tab) => (
             <Link
               key={tab.to}

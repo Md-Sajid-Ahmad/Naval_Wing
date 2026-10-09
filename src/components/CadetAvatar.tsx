@@ -8,19 +8,21 @@ export function CadetAvatar({
   name,
   size = 36,
   rounded = "rounded-md",
+  bucket = "cadet-photos",
 }: {
   path?: string | null;
   name?: string | null;
   size?: number;
   rounded?: string;
+  bucket?: string;
 }) {
   const { data: url } = useQuery({
-    queryKey: ["cadet-photo", path],
+    queryKey: ["cadet-photo", bucket, path],
     enabled: !!path,
     staleTime: 1000 * 60 * 30,
     queryFn: async () => {
       const { data, error } = await supabase.storage
-        .from("cadet-photos")
+        .from(bucket)
         .createSignedUrl(path as string, 60 * 60);
       if (error) throw error;
       return data.signedUrl;
