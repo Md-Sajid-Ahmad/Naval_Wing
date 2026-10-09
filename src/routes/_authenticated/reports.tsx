@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 import { CadetAvatar } from "@/components/CadetAvatar";
 import { bn, RANK_BN } from "@/lib/bn";
+import { ABSENT_LIMIT } from "@/lib/muster";
 
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({
@@ -42,9 +43,6 @@ async function fetchMarks(): Promise<Marks[]> {
   }
   return all;
 }
-
-/** ৩ বা তার বেশি ক্লাসে অনুপস্থিত থাকলে ক্যাডেট নন-একটিভ। */
-const ABSENT_LIMIT = 3;
 
 type Row = {
   id: string;
