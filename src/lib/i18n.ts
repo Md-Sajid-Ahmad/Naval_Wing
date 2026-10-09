@@ -116,7 +116,6 @@ const EN: Record<string, string> = {
   "উত্তীর্ণ": "Passed out",
   "উপস্থিত": "Present",
   "অনুপস্থিত": "Absent",
-  "দেরি": "Late",
   "ছুটি": "Excused",
   "অ্যাডমিন": "Admin",
   "অফিসার": "Officer",

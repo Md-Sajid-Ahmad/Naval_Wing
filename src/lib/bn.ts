@@ -45,7 +45,6 @@ export const STATUS_BN: Record<string, string> = localized({
   passed_out: "উত্তীর্ণ",
   present: "উপস্থিত",
   absent: "অনুপস্থিত",
-  late: "দেরি",
   excused: "ছুটি",
 });
 
