@@ -134,7 +134,6 @@ const EN: Record<string, string> = {
   "মালামাল দেওয়া হয়েছে": "Equipment issued",
   "ফেরত নেওয়া হয়েছে": "Returned",
   "ফেরত": "Return",
-  "দিন": "Issue",
   "কোনো মালামাল নেই।": "No equipment.",
   "লোড হচ্ছে…": "Loading…",
   "স্ট্যাটাস": "Status",
