@@ -94,6 +94,39 @@ export type Database = {
         }
         Relationships: []
       }
+      equipment: {
+        Row: {
+          category: string
+          condition: string
+          created_at: string
+          id: string
+          name: string
+          photo_url: string | null
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          condition?: string
+          created_at?: string
+          id?: string
+          name: string
+          photo_url?: string | null
+          quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          condition?: string
+          created_at?: string
+          id?: string
+          name?: string
+          photo_url?: string | null
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
