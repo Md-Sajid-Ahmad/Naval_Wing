@@ -65,8 +65,8 @@ async function fetchMarks(from: string, to: string): Promise<Marks[]> {
   return all;
 }
 
-type Tally = { present: number; absent: number; excused: number };
-const EMPTY: Tally = { present: 0, absent: 0, excused: 0 };
+type Tally = { present: number; absent: number; excused: number; unreported: number };
+const EMPTY: Tally = { present: 0, absent: 0, excused: 0, unreported: 0 };
 
 function ReportsPage() {
   const [from, setFrom] = useState(monthStart);
@@ -98,6 +98,7 @@ function ReportsPage() {
       if (m.status === "present") cur.present += 1;
       else if (m.status === "absent") cur.absent += 1;
       else if (m.status === "excused") cur.excused += 1;
+      else if (m.status === "unreported") cur.unreported += 1;
       tally.set(m.cadet_id, cur);
     }
     const list = cadets.map((c) => {
@@ -236,6 +237,9 @@ function ReportsPage() {
               </span>
               <span>
                 {t("ছুটি")} {bn(r.excused)}
+              </span>
+              <span>
+                {t("রিপোর্ট করে নাই")} {bn(r.unreported)}
               </span>
             </div>
           </div>

@@ -129,6 +129,7 @@ const EN: Record<string, string> = {
   "উপস্থিত": "Present",
   "অনুপস্থিত": "Absent",
   "ছুটি": "Excused",
+  "রিপোর্ট করে নাই": "Not reported",
   "অ্যাডমিন": "Admin",
   "অফিসার": "Officer",
 };
