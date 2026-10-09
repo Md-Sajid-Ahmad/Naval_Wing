@@ -251,7 +251,7 @@ function EquipmentPage() {
                 : "bg-secondary text-muted-foreground ring-border"
             }`}
           >
-            {c === "all" ? t("সব") : t(CATEGORY_BN[c])}
+            {c === "all" ? t("সব") : t(CATEGORY_BN[c] ?? c)}
           </button>
         ))}
       </div>
