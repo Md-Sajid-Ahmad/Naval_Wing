@@ -127,6 +127,48 @@ export type Database = {
         }
         Relationships: []
       }
+      equipment_assignments: {
+        Row: {
+          assigned_on: string
+          cadet_id: string
+          created_at: string
+          equipment_id: string
+          id: string
+          quantity: number
+        }
+        Insert: {
+          assigned_on?: string
+          cadet_id: string
+          created_at?: string
+          equipment_id: string
+          id?: string
+          quantity?: number
+        }
+        Update: {
+          assigned_on?: string
+          cadet_id?: string
+          created_at?: string
+          equipment_id?: string
+          id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_assignments_cadet_id_fkey"
+            columns: ["cadet_id"]
+            isOneToOne: false
+            referencedRelation: "cadets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_assignments_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
