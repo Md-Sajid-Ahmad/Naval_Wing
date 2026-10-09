@@ -214,7 +214,7 @@ function EquipmentPage() {
               >
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c}>
-                    {t(CATEGORY_BN[c])}
+                    {t(CATEGORY_BN[c] ?? c)}
                   </option>
                 ))}
               </select>
@@ -268,7 +268,7 @@ function EquipmentPage() {
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{it.name}</p>
                 <p className="truncate font-mono text-[10px] text-muted-foreground">
-                  {t(CATEGORY_BN[it.category])} · {t("সংখ্যা")} {bn(it.quantity)}
+                  {t(CATEGORY_BN[it.category] ?? it.category)} · {t("সংখ্যা")} {bn(it.quantity)}
                 </p>
               </div>
               <span
@@ -276,7 +276,7 @@ function EquipmentPage() {
                   it.condition === "good" ? "bg-signal/15 text-signal" : "bg-destructive/15 text-destructive"
                 }`}
               >
-                {t(CONDITION_BN[it.condition])}
+                {t(CONDITION_BN[it.condition] ?? it.condition)}
               </span>
               <button
                 onClick={() => removeItem.mutate(it.id)}
