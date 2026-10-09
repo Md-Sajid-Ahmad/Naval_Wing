@@ -18,7 +18,7 @@ import { Route as AuthenticatedLettersRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedCadetsIndexRouteImport } from './routes/_authenticated/cadets.index'
 import { Route as AuthenticatedCadetsCadetIdRouteImport } from './routes/_authenticated/cadets.$cadetId'
-import { Route as AuthenticatedEquipmentEquipmentIdRouteImport } from './routes/_authenticated/equipment.$equipmentId'
+import { Route as AuthenticatedEquipmentEquipmentIdRouteImport } from './routes/_authenticated/equipment_.$equipmentId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -68,16 +68,16 @@ const AuthenticatedCadetsCadetIdRoute =
   } as any)
 const AuthenticatedEquipmentEquipmentIdRoute =
   AuthenticatedEquipmentEquipmentIdRouteImport.update({
-    id: '/$equipmentId',
-    path: '/$equipmentId',
-    getParentRoute: () => AuthenticatedEquipmentRoute,
+    id: '/equipment_/$equipmentId',
+    path: '/equipment/$equipmentId',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/attendance': typeof AuthenticatedAttendanceRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/equipment': typeof AuthenticatedEquipmentRouteWithChildren
+  '/equipment': typeof AuthenticatedEquipmentRoute
   '/letters': typeof AuthenticatedLettersRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/cadets/$cadetId': typeof AuthenticatedCadetsCadetIdRoute
@@ -88,7 +88,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/attendance': typeof AuthenticatedAttendanceRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/equipment': typeof AuthenticatedEquipmentRouteWithChildren
+  '/equipment': typeof AuthenticatedEquipmentRoute
   '/letters': typeof AuthenticatedLettersRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/cadets/$cadetId': typeof AuthenticatedCadetsCadetIdRoute
@@ -101,11 +101,11 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/_authenticated/attendance': typeof AuthenticatedAttendanceRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/equipment': typeof AuthenticatedEquipmentRouteWithChildren
+  '/_authenticated/equipment': typeof AuthenticatedEquipmentRoute
   '/_authenticated/letters': typeof AuthenticatedLettersRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/cadets/$cadetId': typeof AuthenticatedCadetsCadetIdRoute
-  '/_authenticated/equipment/$equipmentId': typeof AuthenticatedEquipmentEquipmentIdRoute
+  '/_authenticated/equipment_/$equipmentId': typeof AuthenticatedEquipmentEquipmentIdRoute
   '/_authenticated/cadets/': typeof AuthenticatedCadetsIndexRoute
 }
 export interface FileRouteTypes {
@@ -141,7 +141,7 @@ export interface FileRouteTypes {
     | '/_authenticated/letters'
     | '/_authenticated/reports'
     | '/_authenticated/cadets/$cadetId'
-    | '/_authenticated/equipment/$equipmentId'
+    | '/_authenticated/equipment_/$equipmentId'
     | '/_authenticated/cadets/'
   fileRoutesById: FileRoutesById
 }
@@ -215,48 +215,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCadetsCadetIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/equipment/$equipmentId': {
-      id: '/_authenticated/equipment/$equipmentId'
-      path: '/$equipmentId'
+    '/_authenticated/equipment_/$equipmentId': {
+      id: '/_authenticated/equipment_/$equipmentId'
+      path: '/equipment/$equipmentId'
       fullPath: '/equipment/$equipmentId'
       preLoaderRoute: typeof AuthenticatedEquipmentEquipmentIdRouteImport
-      parentRoute: typeof AuthenticatedEquipmentRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
-interface AuthenticatedEquipmentRouteChildren {
-  AuthenticatedEquipmentEquipmentIdRoute: typeof AuthenticatedEquipmentEquipmentIdRoute
-}
-
-const AuthenticatedEquipmentRouteChildren: AuthenticatedEquipmentRouteChildren =
-  {
-    AuthenticatedEquipmentEquipmentIdRoute:
-      AuthenticatedEquipmentEquipmentIdRoute,
-  }
-
-const AuthenticatedEquipmentRouteWithChildren =
-  AuthenticatedEquipmentRoute._addFileChildren(
-    AuthenticatedEquipmentRouteChildren,
-  )
-
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAttendanceRoute: typeof AuthenticatedAttendanceRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedEquipmentRoute: typeof AuthenticatedEquipmentRouteWithChildren
+  AuthenticatedEquipmentRoute: typeof AuthenticatedEquipmentRoute
   AuthenticatedLettersRoute: typeof AuthenticatedLettersRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedCadetsCadetIdRoute: typeof AuthenticatedCadetsCadetIdRoute
+  AuthenticatedEquipmentEquipmentIdRoute: typeof AuthenticatedEquipmentEquipmentIdRoute
   AuthenticatedCadetsIndexRoute: typeof AuthenticatedCadetsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAttendanceRoute: AuthenticatedAttendanceRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedEquipmentRoute: AuthenticatedEquipmentRouteWithChildren,
+  AuthenticatedEquipmentRoute: AuthenticatedEquipmentRoute,
   AuthenticatedLettersRoute: AuthenticatedLettersRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedCadetsCadetIdRoute: AuthenticatedCadetsCadetIdRoute,
+  AuthenticatedEquipmentEquipmentIdRoute:
+    AuthenticatedEquipmentEquipmentIdRoute,
   AuthenticatedCadetsIndexRoute: AuthenticatedCadetsIndexRoute,
 }
 
