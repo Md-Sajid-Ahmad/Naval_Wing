@@ -77,7 +77,7 @@ function CadetDetail() {
       ) : (
         <>
           <figure className="rise mb-4 overflow-hidden rounded-2xl glass">
-            <div className="relative aspect-[4/5] max-h-[58vh] w-full bg-secondary">
+            <div className="relative mx-auto aspect-square w-full max-w-[320px] bg-secondary">
               <div className="absolute inset-0 grid place-items-center">
                 <span className="text-[7rem] leading-none font-extrabold text-muted-foreground">
                   {initial(cadet.full_name)}
