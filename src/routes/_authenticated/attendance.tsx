@@ -60,7 +60,7 @@ function AttendancePage() {
 
   // একই চিহ্নে আবার চাপ দিলে চিহ্ন মুছে যায় (ভুল সংশোধন), অন্য চিহ্নে চাপ দিলে বদলে যায়।
   const mark = useMutation({
-    mutationFn: async ({ cadetId, status }: { cadetId: string; status: "present" | "absent" | "excused" }) => {
+    mutationFn: async ({ cadetId, status }: { cadetId: string; status: MarkStatus }) => {
       if (map.get(cadetId) === status) {
         const { error } = await supabase
           .from("attendance")
@@ -146,12 +146,12 @@ function AttendancePage() {
                 )}
               </div>
               {isStaff && (
-                <div className="mt-2 grid grid-cols-3 gap-1.5">
+                <div className="mt-2 grid grid-cols-4 gap-1.5">
                   {OPTIONS.map((o) => (
                     <button
                       key={o}
                       onClick={() => mark.mutate({ cadetId: c.id, status: o })}
-                      className={`rounded-lg py-1.5 text-[11px] font-medium ring-1 ${
+                      className={`rounded-lg px-1 py-1.5 text-center text-[10px] leading-tight font-medium ring-1 ${
                         status === o
                           ? "bg-signal/15 text-signal ring-signal/30"
                           : "bg-secondary text-muted-foreground ring-border"
