@@ -23,6 +23,7 @@ export const Route = createFileRoute("/_authenticated/cadets/$cadetId")({
 
 function CadetDetail() {
   const { cadetId } = Route.useParams();
+  const [shot, setShot] = useState(false);
 
   const { data: cadet } = useQuery({
     queryKey: ["cadet", cadetId],
