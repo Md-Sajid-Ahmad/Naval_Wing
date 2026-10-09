@@ -76,7 +76,7 @@ function CadetDetail() {
       ) : (
         <>
           <figure className="rise mb-4 overflow-hidden rounded-2xl glass">
-            <div className="relative w-full max-h-[58vh] min-h-56">
+            <div className="relative aspect-[4/5] max-h-[58vh] w-full">
               {photoUrl ? (
                 <img
                   src={photoUrl}
