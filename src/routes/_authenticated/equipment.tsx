@@ -34,7 +34,7 @@ export const Route = createFileRoute("/_authenticated/equipment")({
 const CATEGORIES = ["parade", "piled", "other"] as const;
 const CATEGORY_BN: Record<string, string> = {
   parade: "প্যারেড",
-  piled: "পাইলড",
+  piled: "Pilot",
   other: "Other",
 };
 const CONDITION_BN: Record<string, string> = {
