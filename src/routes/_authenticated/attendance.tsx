@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_authenticated/attendance")({
   head: () => ({
     meta: [
       { title: "উপস্থিতি — BNCC Naval Wing" },
-      { name: "description", content: "দৈনিক প্যারেড উপস্থিতি নিন — উপস্থিত, অনুপস্থিত, দেরি বা ছুটি হিসেবে চিহ্নিত করুন।" },
+      { name: "description", content: "দৈনিক প্যারেড উপস্থিতি নিন — উপস্থিত, অনুপস্থিত বা ছুটি হিসেবে চিহ্নিত করুন।" },
       { property: "og:title", content: "উপস্থিতি — BNCC Naval Wing" },
       { property: "og:description", content: "দৈনিক প্যারেড উপস্থিতি রেকর্ড ও সারাংশ।" },
       { property: "og:type", content: "website" },
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/attendance")({
   component: AttendancePage,
 });
 
-const OPTIONS = ["present", "absent", "late", "excused"] as const;
+const OPTIONS = ["present", "absent", "excused"] as const;
 
 function AttendancePage() {
   // লগইন ছাড়াই খোলা অ্যাপ — সবাই উপস্থিতি নিতে পারবে।
@@ -59,7 +59,7 @@ function AttendancePage() {
 
   // একই চিহ্নে আবার চাপ দিলে চিহ্ন মুছে যায় (ভুল সংশোধন), অন্য চিহ্নে চাপ দিলে বদলে যায়।
   const mark = useMutation({
-    mutationFn: async ({ cadetId, status }: { cadetId: string; status: "present" | "absent" | "late" | "excused" }) => {
+    mutationFn: async ({ cadetId, status }: { cadetId: string; status: "present" | "absent" | "excused" }) => {
       if (map.get(cadetId) === status) {
         const { error } = await supabase
           .from("attendance")
@@ -145,7 +145,7 @@ function AttendancePage() {
                 )}
               </div>
               {isStaff && (
-                <div className="mt-2 grid grid-cols-4 gap-1.5">
+                <div className="mt-2 grid grid-cols-3 gap-1.5">
                   {OPTIONS.map((o) => (
                     <button
                       key={o}
