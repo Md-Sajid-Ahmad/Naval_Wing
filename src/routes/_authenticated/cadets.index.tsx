@@ -11,6 +11,7 @@ import { AuthedShell } from "@/components/AuthedShell";
 import { bn, RANK_BN, RANK_ORDER, sortRanks, STATUS_BN } from "@/lib/bn";
 import { CadetAvatar } from "@/components/CadetAvatar";
 import { errorMessage } from "@/lib/error-message";
+import { shrinkImage } from "@/lib/photo";
 
 export const Route = createFileRoute("/_authenticated/cadets/")({
   head: () => ({
@@ -81,10 +82,11 @@ function CadetsPage() {
     mutationFn: async ({ form, file }: { form: z.infer<typeof cadetSchema>; file: File | null }) => {
       let photo_url: string | null = null;
       if (file && file.size > 0) {
-        const ext = file.name.split(".").pop() ?? "jpg";
+        const shot = await shrinkImage(file);
+        const ext = shot.name.split(".").pop() ?? "jpg";
         const path = `${crypto.randomUUID()}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("cadet-photos").upload(path, file, {
-          contentType: file.type || "image/jpeg",
+        const { error: upErr } = await supabase.storage.from("cadet-photos").upload(path, shot, {
+          contentType: shot.type || "image/jpeg",
         });
         if (upErr) throw upErr;
         photo_url = path;

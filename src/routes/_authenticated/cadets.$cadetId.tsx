@@ -4,8 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
-import { bn, RANK_BN, STATUS_BN } from "@/lib/bn";
-import { CadetAvatar } from "@/components/CadetAvatar";
+import { useState } from "react";
+import { bn, initial, RANK_BN, STATUS_BN } from "@/lib/bn";
 
 export const Route = createFileRoute("/_authenticated/cadets/$cadetId")({
   head: () => ({
@@ -23,6 +23,7 @@ export const Route = createFileRoute("/_authenticated/cadets/$cadetId")({
 
 function CadetDetail() {
   const { cadetId } = Route.useParams();
+  const [shot, setShot] = useState(false);
 
   const { data: cadet } = useQuery({
     queryKey: ["cadet", cadetId],
@@ -34,6 +35,20 @@ function CadetDetail() {
         .maybeSingle();
       if (error) throw error;
       return data;
+    },
+  });
+
+  // বড় ছবির ঠিকানা — একই cache key, তাই তালিকা থেকে এলে আবার লোড হয় না।
+  const { data: photoUrl } = useQuery({
+    queryKey: ["cadet-photo", cadet?.photo_url],
+    enabled: !!cadet?.photo_url,
+    staleTime: 1000 * 60 * 30,
+    queryFn: async () => {
+      const { data, error } = await supabase.storage
+        .from("cadet-photos")
+        .createSignedUrl(cadet?.photo_url as string, 60 * 60);
+      if (error) throw error;
+      return data.signedUrl;
     },
   });
 
@@ -61,16 +76,32 @@ function CadetDetail() {
         <p className="py-10 text-center text-sm text-muted-foreground">{t("লোড হচ্ছে…")}</p>
       ) : (
         <>
-          <div className="rise mb-4 flex items-center gap-3 rounded-2xl glass p-4">
-            <CadetAvatar path={cadet.photo_url} name={cadet.full_name} size={56} rounded="rounded-xl" />
-            <div className="min-w-0">
-              <p className="label-mono">ID · {cadet.cadet_id}</p>
-              <h1 className="truncate text-xl font-extrabold tracking-tight">{cadet.full_name}</h1>
-              <p className="text-xs text-muted-foreground">
-                {RANK_BN[cadet.rank] ?? cadet.rank}
-              </p>
+          <figure className="rise mb-4 overflow-hidden rounded-2xl glass">
+            <div className="relative aspect-[4/5] max-h-[58vh] w-full bg-secondary">
+              <div className="absolute inset-0 grid place-items-center">
+                <span className="text-[7rem] leading-none font-extrabold text-muted-foreground">
+                  {initial(cadet.full_name)}
+                </span>
+              </div>
+              {photoUrl && (
+                <img
+                  src={photoUrl}
+                  alt={cadet.full_name ?? t("ক্যাডেট")}
+                  decoding="async"
+                  onLoad={() => setShot(true)}
+                  onError={() => setShot(false)}
+                  className={`absolute inset-0 size-full object-cover transition-opacity duration-500 ${
+                    shot ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+              )}
             </div>
-          </div>
+            <figcaption className="border-t border-border px-4 py-3">
+              <p className="label-mono">ID · {cadet.cadet_id}</p>
+              <h1 className="mt-1 truncate text-2xl font-extrabold tracking-tight">{cadet.full_name}</h1>
+              <p className="mt-0.5 text-xs text-muted-foreground">{RANK_BN[cadet.rank] ?? cadet.rank}</p>
+            </figcaption>
+          </figure>
 
           <div className="mb-4 grid grid-cols-2 gap-2.5">
             <Info label={t("ব্যাচ")} value={cadet.batch ? bn(cadet.batch) : "—"} />
