@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 import { useState } from "react";
 import { bn, initial, RANK_BN, STATUS_BN } from "@/lib/bn";
+import { CadetEquipment } from "@/components/CadetEquipment";
 
 export const Route = createFileRoute("/_authenticated/cadets/$cadetId")({
   head: () => ({
@@ -109,6 +110,8 @@ function CadetDetail() {
             <Info label={t("ফোন")} value={cadet.phone ? bn(cadet.phone) : "—"} />
             <Info label={t("যোগদান")} value={cadet.joined_on ? bn(cadet.joined_on) : "—"} />
           </div>
+
+          <CadetEquipment cadetId={cadetId} />
 
           <p className="label-mono mb-2">{t("Recent attendance · সাম্প্রতিক উপস্থিতি")}</p>
           <div className="overflow-hidden rounded-xl glass divide-y divide-border">
