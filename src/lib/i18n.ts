@@ -126,6 +126,12 @@ const EN: Record<string, string> = {
   "ক্যাডেটর হিসেব": "Per-cadet tally",
   "নাম": "Name",
   "হার": "Rate",
+  "একটিভ": "Active",
+  "নন-একটিভ": "Non-active",
+  "একটিভ ক্যাডেট": "Active cadets",
+  "নন-একটিভ ক্যাডেট": "Non-active cadets",
+  "৩ ক্লাস অনুপস্থিত থাকলে ক্যাডেট নন-একটিভ তালিকায় চলে যায়।":
+    "A cadet moves to the non-active list after 3 absences.",
   // detail
   "যোগ হয়েছে": "Added",
   "তার কাছে থাকা মালামাল": "Equipment held",
