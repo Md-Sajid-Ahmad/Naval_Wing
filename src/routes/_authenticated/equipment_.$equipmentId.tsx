@@ -7,7 +7,7 @@ import { AuthedShell } from "@/components/AuthedShell";
 import { useState } from "react";
 import { bn, initial } from "@/lib/bn";
 
-export const Route = createFileRoute("/_authenticated/equipment/$equipmentId")({
+export const Route = createFileRoute("/_authenticated/equipment_/$equipmentId")({
   head: () => ({
     meta: [
       { title: "মালামাল বিস্তারিত — BNCC Naval Wing" },
