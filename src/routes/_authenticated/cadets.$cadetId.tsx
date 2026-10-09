@@ -122,7 +122,11 @@ function CadetDetail() {
 
           <div className="mb-4 grid grid-cols-2 gap-2.5">
             <Info label={t("ব্যাচ")} value={cadet.batch ? bn(cadet.batch) : "—"} />
-            <Info label={t("স্ট্যাটাস")} value={STATUS_BN[cadet.status] ?? cadet.status} />
+            <Info
+              label={t("স্ট্যাটাস")}
+              value={inactive ? t("নন-একটিভ") : t("একটিভ")}
+              danger={inactive}
+            />
             <Info label={t("ফোন")} value={cadet.phone ? bn(cadet.phone) : "—"} />
             <Info label={t("যোগদান")} value={cadet.joined_on ? bn(cadet.joined_on) : "—"} />
           </div>
@@ -147,11 +151,11 @@ function CadetDetail() {
   );
 }
 
-function Info({ label, value }: { label: string; value: string }) {
+function Info({ label, value, danger }: { label: string; value: string; danger?: boolean }) {
   return (
     <div className="rounded-xl glass p-3">
       <p className="label-mono">{label}</p>
-      <p className="mt-1 text-sm font-semibold">{value}</p>
+      <p className={`mt-1 text-sm font-semibold ${danger ? "text-destructive" : ""}`}>{value}</p>
     </div>
   );
 }
