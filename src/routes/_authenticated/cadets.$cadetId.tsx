@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 import { useState } from "react";
 import { bn, initial, RANK_BN, STATUS_BN } from "@/lib/bn";
+import { isInactive } from "@/lib/muster";
 import { CadetEquipment } from "@/components/CadetEquipment";
 
 export const Route = createFileRoute("/_authenticated/cadets/$cadetId")({
@@ -66,6 +67,21 @@ function CadetDetail() {
       return data;
     },
   });
+
+  // মোট অনুপস্থিতর সংখ্যা — ৩ বা বেশি হলে ক্যাডেট নন-একটিভ (রিপোর্টর নিয়মই)।
+  const { data: absentCount = 0 } = useQuery({
+    queryKey: ["cadet-absent-count", cadetId],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("attendance")
+        .select("id", { count: "exact", head: true })
+        .eq("cadet_id", cadetId)
+        .eq("status", "absent");
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+  const inactive = isInactive(absentCount);
 
   return (
     <AuthedShell>
