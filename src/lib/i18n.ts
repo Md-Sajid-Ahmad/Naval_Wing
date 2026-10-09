@@ -61,7 +61,7 @@ const EN: Record<string, string> = {
   "সংখ্যা": "Quantity",
   "গ্রুপ": "Group",
   "প্যারেড": "Parade",
-  "পাইলড": "Piled",
+  "Pilot": "Pilot",
   "মোট": "Total",
   "নাম দিয়ে খুঁজুন…": "Search by name…",
   "কোনো মালামাল পাওয়া যায়নি।": "No equipment found.",
