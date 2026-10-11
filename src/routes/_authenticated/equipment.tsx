@@ -113,15 +113,23 @@ function EquipmentPage() {
         if (upErr) throw upErr;
         photo_url = path;
       }
-      const { error } = await supabase.from("equipment").insert({ ...form, photo_url });
+      const { data: added, error } = await supabase
+        .from("equipment")
+        .insert({ ...form, photo_url })
+        .select("id, name, condition, quantity, category, photo_url")
+        .single();
       if (error) throw error;
+      return added;
     },
-    onSuccess: () => {
+    onSuccess: (added) => {
       toast.success(t("নতুন মালামাল যোগ হয়েছে"));
       setOpen(false);
       setPhoto(null);
       setCondition(cond);
       setNewCategory("parade");
+      qc.setQueryData(["equipment"], (old: typeof items | undefined) =>
+        [...(old ?? []), added].sort((a, b) => a.name.localeCompare(b.name)),
+      );
       qc.invalidateQueries({ queryKey: ["equipment"] });
     },
     onError: (e: Error) => toast.error(e.message),
