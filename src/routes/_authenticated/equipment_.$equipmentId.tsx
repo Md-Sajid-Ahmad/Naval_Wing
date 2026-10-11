@@ -83,18 +83,25 @@ function EquipmentDetail() {
               )}
             </div>
             <figcaption className="border-t border-border px-4 py-3">
-              <p className="label-mono">{t("মালামাল")}</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="label-mono">{t("মালামাল")}</p>
+                <span
+                  className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                    item.condition === "good" ? "bg-ok/15 text-ok" : "bg-destructive/15 text-destructive"
+                  }`}
+                >
+                  <span className={`size-1.5 rounded-full ${item.condition === "good" ? "bg-ok" : "bg-destructive"}`} />
+                  {t(item.condition === "bad" ? "খারাপ" : "ভালো")}
+                </span>
+              </div>
               <h1 className="mt-1 truncate text-2xl font-extrabold tracking-tight">{item.name}</h1>
               <p className="mt-0.5 text-xs text-muted-foreground">{t(item.category === "other" ? "Other" : item.category === "piled" ? "Pilot" : "প্যারেড")}</p>
             </figcaption>
           </figure>
 
           <div className="mb-4 grid grid-cols-2 gap-2.5">
-            <Info
-              label={t("অবস্থা")}
-              value={t(item.condition === "bad" ? "খারাপ" : "ভালো")}
-            />
-            <Info label={t("সংখ্যা")} value={bn(item.quantity)} />
+            <Info label={t("অবস্থা")} value={t(item.condition === "bad" ? "খারাপ" : "ভালো")} ok={item.condition === "good"} danger={item.condition === "bad"} />
+            <Info label={t("সংখ্যা")} value={bn(item.quantity)} accent />
             <Info label={t("গ্রুপ")} value={t(item.category === "other" ? "Other" : item.category === "piled" ? "Pilot" : "প্যারেড")} />
             <Info label={t("যোগ হয়েছে")} value={item.created_at ? bn(item.created_at.slice(0, 10)) : "—"} />
           </div>
@@ -104,11 +111,11 @@ function EquipmentDetail() {
   );
 }
 
-function Info({ label, value }: { label: string; value: string }) {
+function Info({ label, value, danger, ok, accent }: { label: string; value: string; danger?: boolean; ok?: boolean; accent?: boolean }) {
   return (
     <div className="rounded-xl glass p-3">
       <p className="label-mono">{label}</p>
-      <p className="mt-1 text-sm font-semibold">{value}</p>
+      <p className={`mt-1 text-sm font-semibold ${danger ? "text-destructive" : ok ? "text-ok" : accent ? "text-signal" : ""}`}>{value}</p>
     </div>
   );
 }

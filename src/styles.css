@@ -44,6 +44,7 @@
   --color-navy: var(--navy);
   --color-steel: var(--steel);
   --color-signal: var(--signal);
+  --color-ok: var(--ok);
   --color-paper: var(--paper);
 }
 
@@ -58,6 +59,7 @@
   --navy: oklch(0.2 0.045 250);
   --steel: oklch(0.6 0.055 250);
   --signal: oklch(0.64 0.226 27);
+  --ok: oklch(0.72 0.145 165);
   --paper: oklch(0.97 0.004 250);
 
   --background: oklch(0.19 0.043 250);

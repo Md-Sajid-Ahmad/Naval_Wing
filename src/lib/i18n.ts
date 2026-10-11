@@ -64,8 +64,10 @@ const EN: Record<string, string> = {
   "মোট": "Total",
   "নাম দিয়ে খুঁজুন…": "Search by name…",
   "কোনো মালামাল পাওয়া যায়নি।": "No equipment found.",
-  "মুছুন": "Delete",
+"মুছুন": "Delete",
   "যেমন: প্যারেড বুট": "e.g. Parade boots",
+  "সর্বমোট স্টক": "Total stock",
+  "আইটেম": "items",
   // language
   "ভাষা": "Language",
   // dashboard

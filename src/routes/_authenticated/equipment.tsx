@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { t } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Trash2 } from "lucide-react";
+import { ImagePlus, PackageOpen, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,6 +55,8 @@ function EquipmentPage() {
   const [category, setCategory] = useState<string>("all");
   const [open, setOpen] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
+  const [condition, setCondition] = useState<"good" | "bad">("good");
+  const [newCategory, setNewCategory] = useState<(typeof CATEGORIES)[number]>("parade");
 
   const { data: items = [] } = useQuery({
     queryKey: ["equipment"],
@@ -79,7 +81,9 @@ function EquipmentPage() {
   );
 
   const totalQty = items.reduce((s, it) => s + it.quantity, 0);
-  const badQty = items.filter((it) => it.condition === "bad").reduce((s, it) => s + it.quantity, 0);
+  const goodQty = items.filter((it) => it.condition === "good").reduce((s, it) => s + it.quantity, 0);
+  const badQty = totalQty - goodQty;
+  const goodRate = totalQty ? Math.round((goodQty / totalQty) * 100) : 100;
 
   const addItem = useMutation({
     mutationFn: async ({ form, file }: { form: z.infer<typeof itemSchema>; file: File | null }) => {
@@ -101,6 +105,8 @@ function EquipmentPage() {
       toast.success(t("নতুন মালামাল যোগ হয়েছে"));
       setOpen(false);
       setPhoto(null);
+      setCondition("good");
+      setNewCategory("parade");
       qc.invalidateQueries({ queryKey: ["equipment"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -123,9 +129,9 @@ function EquipmentPage() {
     const fd = new FormData(e.currentTarget);
     const parsed = itemSchema.safeParse({
       name: fd.get("name"),
-      condition: fd.get("condition") || "good",
+      condition,
       quantity: fd.get("quantity") || 1,
-      category: fd.get("category") || "other",
+      category: newCategory,
     });
     if (!parsed.success) {
       toast.error(t(parsed.error.issues[0]?.message ?? "তথ্য সঠিক নয়"));
@@ -140,59 +146,98 @@ function EquipmentPage() {
         <div>
           <p className="label-mono">Equipment Inventory</p>
           <h1 className="text-2xl font-extrabold tracking-tight">{t("মালামাল")}</h1>
-          <p className="mt-1 text-[11px] text-muted-foreground">
-            {t("মোট")} {bn(totalQty)} · {t("খারাপ")} {bn(badQty)}
-          </p>
         </div>
         <button
           onClick={() => setOpen((v) => !v)}
-          className="flex items-center gap-1.5 rounded-lg bg-signal px-3 py-2 text-xs font-semibold text-primary-foreground"
+          className="flex items-center gap-1.5 rounded-full bg-signal px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm transition-transform active:scale-95"
         >
-          <Plus className="size-3.5" /> {t("যোগ করুন")}
+          <Plus className={`size-3.5 transition-transform ${open ? "rotate-45" : ""}`} /> {t("যোগ করুন")}
         </button>
       </div>
 
+      {/* সারাংশ হিরো কার্ড */}
+      <div className="rise relative mb-3 overflow-hidden rounded-2xl glass p-4" style={{ animationDelay: "40ms" }}>
+        <div className="sweep pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12 bg-foreground/10" />
+        <div className="relative flex items-center justify-between">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-signal">{t("সর্বমোট স্টক")}</p>
+            <p className="mt-1 text-4xl font-extrabold tracking-tight">{bn(totalQty)}</p>
+            <p className="text-[11px] text-muted-foreground">
+              {bn(items.length)} {t("আইটেম")}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="font-mono text-[10px] text-muted-foreground">CONDITION</p>
+            <p className="text-lg font-bold text-signal">{bn(goodRate)}%</p>
+            <p className="text-[11px] text-muted-foreground">
+              {t("ভালো")} {bn(goodQty)} · {t("খারাপ")} {bn(badQty)}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {open && (
-        <form onSubmit={submit} className="rise mb-4 space-y-2.5 rounded-2xl glass p-4">
+        <form onSubmit={submit} className="rise mb-4 space-y-3 rounded-2xl glass p-4" style={{ animationDelay: "80ms" }}>
           <p className="label-mono">{t("নতুন মালামাল")}</p>
+
           <div className="flex items-center gap-3">
-            <div className="grid size-14 place-items-center overflow-hidden rounded-xl bg-secondary ring-1 ring-border">
+            <label
+              htmlFor="photo"
+              className="grid size-16 shrink-0 cursor-pointer place-items-center overflow-hidden rounded-xl bg-secondary ring-1 ring-dashed ring-border transition-colors hover:ring-signal/60"
+            >
               {photo ? (
                 <img src={URL.createObjectURL(photo)} alt={t("ছবি")} className="size-full object-cover" />
               ) : (
-                <span className="text-[10px] text-muted-foreground">{t("ছবি")}</span>
+                <ImagePlus className="size-5 text-muted-foreground" />
               )}
-            </div>
+            </label>
+            <input
+              id="photo"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
+            />
             <div className="min-w-0 flex-1">
-              <label className="label-mono" htmlFor="photo">
-                {t("মালামালের ছবি")}
+              <label className="label-mono" htmlFor="name">
+                {t("নাম")}
               </label>
               <input
-                id="photo"
-                type="file"
-                accept="image/*"
-                onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
-                className="mt-1 w-full text-[11px] text-muted-foreground file:mr-2 file:rounded-md file:border-0 file:bg-secondary file:px-2 file:py-1 file:text-[11px] file:text-foreground"
+                id="name"
+                name="name"
+                placeholder={t("যেমন: প্যারেড বুট")}
+                className="mt-1 w-full rounded-lg bg-secondary px-3 py-2 text-sm outline-none ring-1 ring-border focus:ring-signal/60"
               />
             </div>
           </div>
-          <Field name="name" label={t("নাম")} placeholder={t("যেমন: প্যারেড বুট")} />
-          <div className="grid grid-cols-3 gap-2.5">
+
+          <div>
+            <span className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              {t("অবস্থা")}
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              {(["good", "bad"] as const).map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setCondition(c)}
+                  className={`rounded-lg py-2 text-xs font-semibold ring-1 transition-colors ${
+                    condition === c
+                      ? c === "good"
+                        ? "bg-signal/15 text-signal ring-signal/40"
+                        : "bg-destructive/15 text-destructive ring-destructive/40"
+                      : "bg-secondary text-muted-foreground ring-border"
+                  }`}
+                >
+                  {t(CONDITION_BN[c] ?? c)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2.5">
             <label className="block">
-              <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t("অবস্থা")}
-              </span>
-              <select
-                name="condition"
-                defaultValue="good"
-                className="w-full rounded-lg border border-border bg-input px-3 py-2 text-sm"
-              >
-                <option value="good">{t("ভালো")}</option>
-                <option value="bad">{t("খারাপ")}</option>
-              </select>
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 {t("সংখ্যা")}
               </span>
               <input
@@ -203,34 +248,40 @@ function EquipmentPage() {
                 className="w-full rounded-lg border border-border bg-input px-3 py-2 text-sm"
               />
             </label>
-            <label className="block">
-              <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <div>
+              <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 {t("গ্রুপ")}
               </span>
-              <select
-                name="category"
-                defaultValue="parade"
-                className="w-full rounded-lg border border-border bg-input px-3 py-2 text-sm"
-              >
+              <div className="flex gap-1.5">
                 {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setNewCategory(c)}
+                    className={`flex-1 rounded-lg px-1 py-2 text-[11px] font-semibold ring-1 transition-colors ${
+                      newCategory === c
+                        ? "bg-signal/15 text-signal ring-signal/40"
+                        : "bg-secondary text-muted-foreground ring-border"
+                    }`}
+                  >
                     {t(CATEGORY_BN[c] ?? c)}
-                  </option>
+                  </button>
                 ))}
-              </select>
-            </label>
+              </div>
+            </div>
           </div>
+
           <button
             type="submit"
             disabled={addItem.isPending}
-            className="w-full rounded-lg bg-signal py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+            className="w-full rounded-lg bg-signal py-2.5 text-sm font-semibold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-60"
           >
             {addItem.isPending ? t("সংরক্ষণ হচ্ছে…") : t("সংরক্ষণ করুন")}
           </button>
         </form>
       )}
 
-      <div className="rise mb-3 flex items-center gap-2 rounded-xl glass px-3 py-2.5">
+      <div className="rise mb-3 flex items-center gap-2 rounded-xl glass px-3 py-2.5" style={{ animationDelay: "120ms" }}>
         <Search className="size-4 text-muted-foreground" />
         <input
           value={term}
@@ -245,7 +296,7 @@ function EquipmentPage() {
           <button
             key={c}
             onClick={() => setCategory(c)}
-            className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-medium ring-1 ${
+            className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-medium ring-1 transition-colors ${
               category === c
                 ? "bg-signal/15 text-signal ring-signal/30"
                 : "bg-secondary text-muted-foreground ring-border"
@@ -263,23 +314,33 @@ function EquipmentPage() {
       <div className="overflow-hidden rounded-xl glass">
         <div className="divide-y divide-border">
           {filtered.map((it) => (
-            <div key={it.id} className="flex items-center gap-3 px-3 py-2.5">
-              <Link to="/equipment/$equipmentId" params={{ equipmentId: it.id }} className="flex min-w-0 flex-1 items-center gap-3">
-                <CadetAvatar path={it.photo_url} name={it.name} size={40} bucket="equipment-photos" />
+            <div key={it.id} className="group flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-foreground/5">
+              <Link
+                to="/equipment/$equipmentId"
+                params={{ equipmentId: it.id }}
+                className="flex min-w-0 flex-1 items-center gap-3"
+              >
+                <CadetAvatar path={it.photo_url} name={it.name} size={44} bucket="equipment-photos" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{it.name}</p>
                   <p className="truncate font-mono text-[10px] text-muted-foreground">
-                    {t(CATEGORY_BN[it.category] ?? it.category)} · {t("সংখ্যা")} {bn(it.quantity)}
+                    {t(CATEGORY_BN[it.category] ?? it.category)}
                   </p>
                 </div>
+                <div className="flex flex-col items-end gap-1">
+                  <span className="rounded-md bg-secondary px-2 py-0.5 font-mono text-[11px] font-bold">
+                    ×{bn(it.quantity)}
+                  </span>
+                  <span className="flex items-center gap-1 text-[10px]">
+                    <span
+                      className={`size-1.5 rounded-full ${it.condition === "good" ? "bg-ok" : "bg-destructive"}`}
+                    />
+                    <span className={it.condition === "good" ? "text-ok" : "text-destructive"}>
+                      {t(CONDITION_BN[it.condition] ?? it.condition)}
+                    </span>
+                  </span>
+                </div>
               </Link>
-              <span
-                className={`rounded px-2 py-0.5 font-mono text-[10px] ${
-                  it.condition === "good" ? "bg-signal/15 text-signal" : "bg-destructive/15 text-destructive"
-                }`}
-              >
-                {t(CONDITION_BN[it.condition] ?? it.condition)}
-              </span>
               <button
                 onClick={() => removeItem.mutate(it.id)}
                 aria-label={t("মুছুন")}
@@ -290,26 +351,13 @@ function EquipmentPage() {
             </div>
           ))}
           {filtered.length === 0 && (
-            <p className="px-3 py-6 text-center text-sm text-muted-foreground">{t("কোনো মালামাল পাওয়া যায়নি।")}</p>
+            <div className="flex flex-col items-center gap-2 px-3 py-10 text-center">
+              <PackageOpen className="size-8 text-muted-foreground/60" />
+              <p className="text-sm text-muted-foreground">{t("কোনো মালামাল পাওয়া যায়নি।")}</p>
+            </div>
           )}
         </div>
       </div>
     </AuthedShell>
-  );
-}
-
-function Field({ name, label, placeholder }: { name: string; label: string; placeholder?: string }) {
-  return (
-    <div>
-      <label className="label-mono" htmlFor={name}>
-        {label}
-      </label>
-      <input
-        id={name}
-        name={name}
-        placeholder={placeholder}
-        className="mt-1 w-full rounded-lg bg-secondary px-3 py-2 text-sm outline-none ring-1 ring-border focus:ring-signal/60"
-      />
-    </div>
   );
 }
