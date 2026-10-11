@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 
-import { bn, RANK_BN, RANK_ORDER, sortRanks, STATUS_BN } from "@/lib/bn";
+import { bn, RANK_BN, sortRanks, STATUS_BN } from "@/lib/bn";
 import { CadetAvatar } from "@/components/CadetAvatar";
 
 export const Route = createFileRoute("/_authenticated/attendance")({
