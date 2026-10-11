@@ -179,13 +179,14 @@ function Info({
 /** নম্বৰ দিয়ে কল করাৰ বাটন — ফোন নাইকিলে কল বাটন দেখুওৱা নয़। */
 function PhoneRow({ phone }: { phone?: string | null }) {
   const digits = phone?.replace(/[^+\d]/g, "") ?? "";
+  const callable = digits.replace(/\D/g, "").length >= 6;
   const body = (
     <>
       <span className="min-w-0">
         <span className="label-mono block">{t("ফোন")}</span>
         <span className="mt-1 block truncate text-sm font-semibold">{phone ? bn(phone) : "—"}</span>
       </span>
-      {phone && (
+      {callable && (
         <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-signal px-3.5 py-2 text-xs font-bold text-navy">
           <Phone className="size-3.5" /> {t("কল করুন")}
         </span>
@@ -194,7 +195,7 @@ function PhoneRow({ phone }: { phone?: string | null }) {
   );
   const cls =
     "mb-4 flex items-center justify-between gap-3 rounded-xl glass p-3 transition-transform active:scale-[0.99]";
-  return phone ? (
+  return callable ? (
     <a href={`tel:${digits}`} className={cls} aria-label={`${t("কল করুন")} ${phone}`}>
       {body}
     </a>
