@@ -87,10 +87,10 @@ function EquipmentDetail() {
                 <p className="label-mono">{t("মালামাল")}</p>
                 <span
                   className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                    item.condition === "good" ? "bg-signal/15 text-signal" : "bg-destructive/15 text-destructive"
+                    item.condition === "good" ? "bg-ok/15 text-ok" : "bg-destructive/15 text-destructive"
                   }`}
                 >
-                  <span className={`size-1.5 rounded-full ${item.condition === "good" ? "bg-signal" : "bg-destructive"}`} />
+                  <span className={`size-1.5 rounded-full ${item.condition === "good" ? "bg-ok" : "bg-destructive"}`} />
                   {t(item.condition === "bad" ? "খারাপ" : "ভালো")}
                 </span>
               </div>

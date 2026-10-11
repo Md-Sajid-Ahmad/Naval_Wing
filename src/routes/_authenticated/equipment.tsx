@@ -333,9 +333,9 @@ function EquipmentPage() {
                   </span>
                   <span className="flex items-center gap-1 text-[10px]">
                     <span
-                      className={`size-1.5 rounded-full ${it.condition === "good" ? "bg-signal" : "bg-destructive"}`}
+                      className={`size-1.5 rounded-full ${it.condition === "good" ? "bg-ok" : "bg-destructive"}`}
                     />
-                    <span className={it.condition === "good" ? "text-signal" : "text-destructive"}>
+                    <span className={it.condition === "good" ? "text-ok" : "text-destructive"}>
                       {t(CONDITION_BN[it.condition] ?? it.condition)}
                     </span>
                   </span>
