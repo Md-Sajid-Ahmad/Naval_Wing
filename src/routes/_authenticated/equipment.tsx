@@ -1,10 +1,10 @@
 // ============= Full file contents =============
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ImagePlus, PackageOpen, Plus, Search, Trash2 } from "lucide-react";
+import { ImagePlus, PackageOpen, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,9 +18,9 @@ export const Route = createFileRoute("/_authenticated/equipment")({
   head: () => ({
     meta: [
       { title: "মালামাল — BNCC Naval Wing" },
-      { name: "description", content: "ইকুইপমেন্ট ইনভেন্টরি — ভালো ও খারাপ মালামাল আলাদা ভাবে দেখুন, ছবি, নাম, অবস্থা, সংখ্যা ও গ্রুপসহ যোগ করুন।" },
+      { name: "description", content: "ইকুইপমেন্ট ইনভেন্টরি — ভালো ও খারাপ মালামাল আলাদা ভাবে দেখুন, ছবি, নাম, অবস্থা, সংখ্যা ও গ্রুপসহ যোগ ও সংপাদন করুন।" },
       { property: "og:title", content: "মালামাল — BNCC Naval Wing" },
-      { property: "og:description", content: "ভালো ও খারাপ মালামালের আলাদা তালিকা ও ইনভেন্টরি।" },
+      { property: "og:description", content: "ভালো ও খারাপ মালামালের আলাদা তালিকা, যোগ ও সংপাদন।" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -34,19 +34,31 @@ export const Route = createFileRoute("/_authenticated/equipment")({
 });
 
 const CATEGORIES = ["parade", "piled", "other"] as const;
+type Category = (typeof CATEGORIES)[number];
+type Condition = "good" | "bad";
+
 const CATEGORY_BN: Record<string, string> = {
   parade: "প্যারেড",
   piled: "Pilot",
   other: "Other",
 };
-const CONDITION_BN: Record<string, string> = {
+const CONDITION_BN: Record<Condition, string> = {
   good: "ভালো",
   bad: "খারাপ",
 };
-const SECTION_BN: Record<"good" | "bad", string> = {
+const SECTION_BN: Record<Condition, string> = {
   good: "ভালো মালামাল",
   bad: "খারাপ মালামাল",
 };
+
+const SELECTED = "id, name, condition, quantity, category, photo_url";
+
+function asCategory(c: string): Category {
+  return (CATEGORIES as readonly string[]).includes(c) ? (c as Category) : "other";
+}
+function asCondition(c: string): Condition {
+  return c === "bad" ? "bad" : "good";
+}
 
 const itemSchema = z.object({
   name: z.string().trim().min(2, "নাম দিন").max(100),
@@ -55,23 +67,39 @@ const itemSchema = z.object({
   category: z.enum(["parade", "piled", "other"]),
 });
 
+async function uploadPhoto(file: File): Promise<string> {
+  const shot = await shrinkImage(file);
+  const ext = shot.name.split(".").pop() ?? "jpg";
+  const path = `${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from("equipment-photos").upload(path, shot, {
+    contentType: shot.type || "image/jpeg",
+  });
+  if (error) throw error;
+  return path;
+}
+
+async function signedPhoto(path: string): Promise<string | null> {
+  const { data } = await supabase.storage.from("equipment-photos").createSignedUrl(path, 3600);
+  return data?.signedUrl ?? null;
+}
+
 function EquipmentPage() {
   const qc = useQueryClient();
-  const [cond, setCond] = useState<"good" | "bad">("good");
+  const [cond, setCond] = useState<Condition>("good");
   const [term, setTerm] = useState("");
   const [category, setCategory] = useState<string>("all");
   const [open, setOpen] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
-  const [condition, setCondition] = useState<"good" | "bad">("good");
-  const [newCategory, setNewCategory] = useState<(typeof CATEGORIES)[number]>("parade");
+  const [condition, setCondition] = useState<Condition>("good");
+  const [newCategory, setNewCategory] = useState<Category>("parade");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingPhoto, setEditingPhoto] = useState<string | null>(null);
+  const editSeq = useRef(0);
 
   const { data: items = [] } = useQuery({
     queryKey: ["equipment"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("equipment")
-        .select("id, name, condition, quantity, category, photo_url")
-        .order("name");
+      const { data, error } = await supabase.from("equipment").select(SELECTED).order("name");
       if (error) throw error;
       return data;
     },
@@ -88,47 +116,67 @@ function EquipmentPage() {
   );
 
   const rows = useMemo(() => filtered.filter((it) => it.condition === cond), [filtered, cond]);
+  const editing = useMemo(() => items.find((it) => it.id === editingId) ?? null, [items, editingId]);
 
   const totalQty = items.reduce((s, it) => s + it.quantity, 0);
   const goodQty = items.filter((it) => it.condition === "good").reduce((s, it) => s + it.quantity, 0);
   const badQty = totalQty - goodQty;
   const goodRate = totalQty ? Math.round((goodQty / totalQty) * 100) : 100;
 
-  const counts: Record<"good" | "bad", number> = {
+  const counts: Record<Condition, number> = {
     good: items.filter((it) => it.condition === "good").length,
     bad: items.filter((it) => it.condition === "bad").length,
   };
-  const qtys: Record<"good" | "bad", number> = { good: goodQty, bad: badQty };
+  const qtys: Record<Condition, number> = { good: goodQty, bad: badQty };
 
   const addItem = useMutation({
     mutationFn: async ({ form, file }: { form: z.infer<typeof itemSchema>; file: File | null }) => {
-      let photo_url: string | null = null;
-      if (file && file.size > 0) {
-        const shot = await shrinkImage(file);
-        const ext = shot.name.split(".").pop() ?? "jpg";
-        const path = `${crypto.randomUUID()}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("equipment-photos").upload(path, shot, {
-          contentType: shot.type || "image/jpeg",
-        });
-        if (upErr) throw upErr;
-        photo_url = path;
-      }
+      const photo_url = file && file.size > 0 ? await uploadPhoto(file) : null;
       const { data: added, error } = await supabase
         .from("equipment")
         .insert({ ...form, photo_url })
-        .select("id, name, condition, quantity, category, photo_url")
+        .select(SELECTED)
         .single();
       if (error) throw error;
       return added;
     },
     onSuccess: (added) => {
       toast.success(t("নতুন মালামাল যোগ হয়েছে"));
-      setOpen(false);
-      setPhoto(null);
-      setCondition(cond);
-      setNewCategory("parade");
+      closeForm();
       qc.setQueryData(["equipment"], (old: typeof items | undefined) =>
         [...(old ?? []), added].sort((a, b) => a.name.localeCompare(b.name)),
+      );
+      qc.invalidateQueries({ queryKey: ["equipment"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const updateItem = useMutation({
+    mutationFn: async ({
+      id,
+      form,
+      file,
+    }: {
+      id: string;
+      form: z.infer<typeof itemSchema>;
+      file: File | null;
+    }) => {
+      const patch: Record<string, unknown> = { ...form };
+      if (file && file.size > 0) patch.photo_url = await uploadPhoto(file);
+      const { data: updated, error } = await supabase
+        .from("equipment")
+        .update(patch)
+        .eq("id", id)
+        .select(SELECTED)
+        .single();
+      if (error) throw error;
+      return updated;
+    },
+    onSuccess: (updated) => {
+      toast.success(t("মালামাল সংপাদন হয়েছে"));
+      closeForm();
+      qc.setQueryData(["equipment"], (old: typeof items | undefined) =>
+        (old ?? []).map((it) => (it.id === updated.id ? updated : it)),
       );
       qc.invalidateQueries({ queryKey: ["equipment"] });
     },
@@ -147,6 +195,44 @@ function EquipmentPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  function closeForm() {
+    setOpen(false);
+    setEditingId(null);
+    setPhoto(null);
+    setEditingPhoto(null);
+    setNewCategory("parade");
+    setCondition(cond);
+  }
+
+  function toggleForm() {
+    if (open) closeForm();
+    else {
+      setOpen(true);
+      setCondition(cond);
+    }
+  }
+
+  function startEdit(it: (typeof items)[number]) {
+    const mine = ++editSeq.current;
+    setOpen(true);
+    setEditingId(it.id);
+    setCondition(asCondition(it.condition));
+    setNewCategory(asCategory(it.category));
+    setPhoto(null);
+    setEditingPhoto(null);
+    if (it.photo_url) {
+      void signedPhoto(it.photo_url).then((url) => {
+        if (editSeq.current === mine) setEditingPhoto(url);
+      });
+    }
+  }
+
+  function pickTab(c: Condition) {
+    setCond(c);
+    setCondition(c);
+    if (editingId) closeForm();
+  }
+
   function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
@@ -160,13 +246,11 @@ function EquipmentPage() {
       toast.error(t(parsed.error.issues[0]?.message ?? "তথ্য সঠিক নয়"));
       return;
     }
-    addItem.mutate({ form: parsed.data, file: photo });
+    if (editingId) updateItem.mutate({ id: editingId, form: parsed.data, file: photo });
+    else addItem.mutate({ form: parsed.data, file: photo });
   }
 
-  function pickTab(c: "good" | "bad") {
-    setCond(c);
-    setCondition(c);
-  }
+  const busy = addItem.isPending || updateItem.isPending;
 
   return (
     <AuthedShell>
@@ -228,27 +312,35 @@ function EquipmentPage() {
         ))}
       </div>
 
-      {/* নতুন মালামাল যোগ কর — এই option-এর ভিতরতেই */}
+      {/* যোগ / সংপাদন ফরম — এই option-এর ভিতরতেই */}
       <div className="rise mt-3 rounded-2xl glass p-3" style={{ animationDelay: "120ms" }}>
         <button
-          onClick={() => setOpen((v) => !v)}
+          onClick={toggleForm}
           className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-signal py-2.5 text-sm font-semibold text-primary-foreground transition-transform active:scale-[0.98]"
         >
           <Plus className={`size-4 transition-transform ${open ? "rotate-45" : ""}`} />
-          {t("যোগ করুন")} · {t(SECTION_BN[cond])}
+          {open && editing ? t("মালামাল সংপাদন") : `${t("যোগ করুন")} · ${t(SECTION_BN[cond])}`}
         </button>
 
         {open && (
-          <form onSubmit={submit} className="rise mt-3 space-y-3" style={{ animationDelay: "160ms" }}>
-            <p className="label-mono">{t("নতুন মালামাল")}</p>
+          <form
+            key={editingId ?? "new"}
+            onSubmit={submit}
+            className="rise mt-3 space-y-3"
+            style={{ animationDelay: "160ms" }}
+          >
+            <p className="label-mono">{editing ? t("মালামাল সংপাদন") : t("নতুন মালামাল")}</p>
 
             <div className="flex items-center gap-3">
               <label
                 htmlFor="photo"
                 className="grid size-16 shrink-0 cursor-pointer place-items-center overflow-hidden rounded-xl bg-secondary ring-1 ring-dashed ring-border transition-colors hover:ring-signal/60"
+                title={t("ছবি বদল করুন")}
               >
                 {photo ? (
                   <img src={URL.createObjectURL(photo)} alt={t("ছবি")} className="size-full object-cover" />
+                ) : editingPhoto ? (
+                  <img src={editingPhoto} alt={t("ছবি")} className="size-full object-cover" />
                 ) : (
                   <ImagePlus className="size-5 text-muted-foreground" />
                 )}
@@ -267,9 +359,13 @@ function EquipmentPage() {
                 <input
                   id="name"
                   name="name"
+                  defaultValue={editing?.name ?? ""}
                   placeholder={t("যেমন: প্যারেড বুট")}
                   className="mt-1 w-full rounded-lg bg-secondary px-3 py-2 text-sm outline-none ring-1 ring-border focus:ring-signal/60"
                 />
+                {editing && photo === null && editingPhoto === null && editing.photo_url && (
+                  <p className="mt-1 text-[10px] text-muted-foreground">{t("আগেৰ ছবি রইছে")}</p>
+                )}
               </div>
             </div>
 
@@ -291,7 +387,7 @@ function EquipmentPage() {
                         : "bg-secondary text-muted-foreground ring-border"
                     }`}
                   >
-                    {t(CONDITION_BN[c] ?? c)}
+                    {t(CONDITION_BN[c])}
                   </button>
                 ))}
               </div>
@@ -306,13 +402,13 @@ function EquipmentPage() {
                   name="quantity"
                   type="number"
                   min={0}
-                  defaultValue={1}
+                  defaultValue={editing?.quantity ?? 1}
                   className="w-full rounded-lg border border-border bg-input px-3 py-2 text-sm"
                 />
               </label>
               <div>
                 <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  {t("গ্রুপ")}
+                  {t("গ্ৰুপ")}
                 </span>
                 <div className="flex gap-1.5">
                   {CATEGORIES.map((c) => (
@@ -335,11 +431,21 @@ function EquipmentPage() {
 
             <button
               type="submit"
-              disabled={addItem.isPending}
+              disabled={busy}
               className="w-full rounded-lg bg-signal py-2.5 text-sm font-semibold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-60"
             >
-              {addItem.isPending ? t("সংরক্ষণ হচ্ছে…") : t("সংরক্ষণ করুন")}
+              {busy ? t("সংরক্ষণ হচ্ছে…") : editing ? t("আপডেট করুন") : t("সংরক্ষণ করুন")}
             </button>
+
+            {editing && (
+              <button
+                type="button"
+                onClick={closeForm}
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold text-muted-foreground ring-1 ring-border transition-colors hover:text-destructive"
+              >
+                <X className="size-3.5" /> {t("বাতিল")}
+              </button>
+            )}
           </form>
         )}
       </div>
@@ -377,7 +483,7 @@ function EquipmentPage() {
       <div className="overflow-hidden rounded-xl glass">
         <div className="divide-y divide-border">
           {rows.map((it) => (
-            <div key={it.id} className="group flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-foreground/5">
+            <div key={it.id} className="group flex items-center gap-2 px-3 py-2.5 transition-colors hover:bg-foreground/5">
               <Link
                 to="/equipment/$equipmentId"
                 params={{ equipmentId: it.id }}
@@ -394,6 +500,13 @@ function EquipmentPage() {
                   ×{bn(it.quantity)}
                 </span>
               </Link>
+              <button
+                onClick={() => startEdit(it)}
+                aria-label={t("সংপাদন করুন")}
+                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:text-signal"
+              >
+                <Pencil className="size-3.5" />
+              </button>
               <button
                 onClick={() => removeItem.mutate(it.id)}
                 aria-label={t("মুছুন")}
