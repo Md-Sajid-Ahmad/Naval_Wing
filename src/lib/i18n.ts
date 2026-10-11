@@ -142,6 +142,7 @@ const EN: Record<string, string> = {
   "কোনো মালামাল নেই।": "No equipment.",
   "লোড হচ্ছে…": "Loading…",
   "স্ট্যাটাস": "Status",
+  "কল করুন": "Call",
   "যোগদান": "Joined",
   "Recent attendance · সাম্প্রতিক উপস্থিতি": "Recent attendance",
   "কোনো রেকর্ড নেই।": "No records.",
