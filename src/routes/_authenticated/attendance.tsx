@@ -130,8 +130,24 @@ function AttendancePage() {
         </span>
       </div>
 
+      <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1">
+        {["all", ...ranks].map((r) => (
+          <button
+            key={r}
+            onClick={() => setRank(r)}
+            className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-medium ring-1 ${
+              rank === r
+                ? "bg-signal/15 text-signal ring-signal/30"
+                : "bg-secondary text-muted-foreground ring-border"
+            }`}
+          >
+            {r === "all" ? t("সব") : RANK_BN[r] ?? r}
+          </button>
+        ))}
+      </div>
+
       <div className="overflow-hidden rounded-xl glass divide-y divide-border">
-        {cadets.map((c) => {
+        {shown.map((c) => {
           const status = map.get(c.id);
           return (
             <div key={c.id} className="px-3 py-2.5">
