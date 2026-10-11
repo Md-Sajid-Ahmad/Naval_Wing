@@ -41,6 +41,10 @@ const CONDITION_BN: Record<string, string> = {
   good: "ভালো",
   bad: "খারাপ",
 };
+const SECTION_BN: Record<"good" | "bad", string> = {
+  good: "ভালো মালামাল",
+  bad: "খারাপ মালামাল",
+};
 
 const itemSchema = z.object({
   name: z.string().trim().min(2, "নাম দিন").max(100),
