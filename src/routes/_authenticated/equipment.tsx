@@ -158,7 +158,7 @@ function EquipmentPage() {
       );
       qc.invalidateQueries({ queryKey: ["equipment"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError,
   });
 
   const updateItem = useMutation({
