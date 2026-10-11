@@ -82,6 +82,14 @@ async function signedPhoto(path: string): Promise<string | null> {
   return data?.signedUrl ?? null;
 }
 
+// DB-তে unique index (lower(btrim(name))) আছে — একই নাম দ্বিতীয়বার গেলে Postgres 23505 দেয়।
+function isDupName(e: unknown): boolean {
+  return (e as { code?: string })?.code === "23505";
+}
+function onError(e: Error) {
+  toast.error(isDupName(e) ? t("এই নামের মালামাল আগেই যোগ করা আছে — অন্য নাম দিন।") : e.message);
+}
+
 function EquipmentPage() {
   const qc = useQueryClient();
   const [cond, setCond] = useState<Condition>("good");
@@ -150,7 +158,7 @@ function EquipmentPage() {
       );
       qc.invalidateQueries({ queryKey: ["equipment"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError,
   });
 
   const updateItem = useMutation({
@@ -182,7 +190,7 @@ function EquipmentPage() {
       );
       qc.invalidateQueries({ queryKey: ["equipment"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError,
   });
 
   const removeItem = useMutation({
@@ -194,7 +202,7 @@ function EquipmentPage() {
       toast.success(t("মালামাল মুছে ফেলা হয়েছে"));
       qc.invalidateQueries({ queryKey: ["equipment"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError,
   });
 
   function closeForm() {

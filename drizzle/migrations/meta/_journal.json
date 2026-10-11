@@ -43,6 +43,13 @@
       "when": 1791518772321,
       "tag": "0005_equipment_assignments",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791737057353,
+      "tag": "0006_equipment_unique_name",
+      "breakpoints": true
     }
   ]
 }
