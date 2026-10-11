@@ -307,57 +307,66 @@ function EquipmentPage() {
         ))}
       </div>
 
-      <p className="mb-2 font-mono text-[10px] text-muted-foreground">
+      <p className="mb-3 font-mono text-[10px] text-muted-foreground">
         {bn(filtered.length)} / {bn(items.length)} ITEMS
       </p>
 
-      <div className="overflow-hidden rounded-xl glass">
-        <div className="divide-y divide-border">
-          {filtered.map((it) => (
-            <div key={it.id} className="group flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-foreground/5">
-              <Link
-                to="/equipment/$equipmentId"
-                params={{ equipmentId: it.id }}
-                className="flex min-w-0 flex-1 items-center gap-3"
-              >
-                <CadetAvatar path={it.photo_url} name={it.name} size={44} bucket="equipment-photos" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">{it.name}</p>
-                  <p className="truncate font-mono text-[10px] text-muted-foreground">
-                    {t(CATEGORY_BN[it.category] ?? it.category)}
-                  </p>
-                </div>
-                <div className="flex flex-col items-end gap-1">
-                  <span className="rounded-md bg-secondary px-2 py-0.5 font-mono text-[11px] font-bold">
-                    ×{bn(it.quantity)}
-                  </span>
-                  <span className="flex items-center gap-1 text-[10px]">
-                    <span
-                      className={`size-1.5 rounded-full ${it.condition === "good" ? "bg-ok" : "bg-destructive"}`}
-                    />
-                    <span className={it.condition === "good" ? "text-ok" : "text-destructive"}>
-                      {t(CONDITION_BN[it.condition] ?? it.condition)}
-                    </span>
-                  </span>
-                </div>
-              </Link>
-              <button
-                onClick={() => removeItem.mutate(it.id)}
-                aria-label={t("মুছুন")}
-                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:text-destructive"
-              >
-                <Trash2 className="size-3.5" />
-              </button>
+      {(["good", "bad"] as const).map((cond) => {
+        const rows = filtered.filter((it) => it.condition === cond);
+        const qty = rows.reduce((s, it) => s + it.quantity, 0);
+        return (
+          <section key={cond} className="mb-5">
+            <div className="mb-2 flex items-center gap-2">
+              <span className={`size-2 rounded-full ${cond === "good" ? "bg-ok" : "bg-destructive"}`} />
+              <h2 className="text-sm font-bold tracking-tight">{t(SECTION_BN[cond])}</h2>
+              <span className="ml-auto rounded-full bg-secondary px-2 py-0.5 font-mono text-[10px] font-bold text-muted-foreground">
+                {bn(rows.length)} · ×{bn(qty)}
+              </span>
             </div>
-          ))}
-          {filtered.length === 0 && (
-            <div className="flex flex-col items-center gap-2 px-3 py-10 text-center">
-              <PackageOpen className="size-8 text-muted-foreground/60" />
-              <p className="text-sm text-muted-foreground">{t("কোনো মালামাল পাওয়া যায়নি।")}</p>
+
+            <div className="overflow-hidden rounded-xl glass">
+              <div className="divide-y divide-border">
+                {rows.map((it) => (
+                  <div
+                    key={it.id}
+                    className="group flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-foreground/5"
+                  >
+                    <Link
+                      to="/equipment/$equipmentId"
+                      params={{ equipmentId: it.id }}
+                      className="flex min-w-0 flex-1 items-center gap-3"
+                    >
+                      <CadetAvatar path={it.photo_url} name={it.name} size={44} bucket="equipment-photos" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold">{it.name}</p>
+                        <p className="truncate font-mono text-[10px] text-muted-foreground">
+                          {t(CATEGORY_BN[it.category] ?? it.category)}
+                        </p>
+                      </div>
+                      <span className="rounded-md bg-secondary px-2 py-0.5 font-mono text-[11px] font-bold">
+                        ×{bn(it.quantity)}
+                      </span>
+                    </Link>
+                    <button
+                      onClick={() => removeItem.mutate(it.id)}
+                      aria-label={t("মুছুন")}
+                      className="rounded-md p-1.5 text-muted-foreground transition-colors hover:text-destructive"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  </div>
+                ))}
+                {rows.length === 0 && (
+                  <div className="flex flex-col items-center gap-2 px-3 py-8 text-center">
+                    <PackageOpen className="size-7 text-muted-foreground/50" />
+                    <p className="text-sm text-muted-foreground">{t("কোনো মালামাল পাওয়া যায়নি।")}</p>
+                  </div>
+                )}
+              </div>
             </div>
-          )}
-        </div>
-      </div>
+          </section>
+        );
+      })}
     </AuthedShell>
   );
 }
