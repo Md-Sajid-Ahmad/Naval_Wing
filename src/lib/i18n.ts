@@ -57,6 +57,8 @@ const EN: Record<string, string> = {
   "অবস্থা": "Condition",
   "ভালো": "Good",
   "খারাপ": "Bad",
+  "ভালো মালামাল": "Good Equipment",
+  "খারাপ মালামাল": "Bad Equipment",
   "সংখ্যা": "Quantity",
   "গ্রুপ": "Group",
   "প্যারেড": "Parade",
