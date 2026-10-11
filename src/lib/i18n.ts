@@ -47,7 +47,6 @@ const EN: Record<string, string> = {
   "ড্যাশবোর্ড": "Dashboard",
   "ক্যাডেট": "Cadet",
   "উপস্থিতি": "Attendance",
-  "চিঠি": "Letters",
   "রিপোর্ট": "Reports",
   "মালামাল": "Equipment",
   // equipment
@@ -146,11 +145,6 @@ const EN: Record<string, string> = {
   "যোগদান": "Joined",
   "Recent attendance · সাম্প্রতিক উপস্থিতি": "Recent attendance",
   "কোনো রেকর্ড নেই।": "No records.",
-  // letters
-  "চিঠি ব্যবস্থাপনা": "Letter Management",
-  "এই মডিউলটি শীঘ্রই আসছে": "This module is coming soon",
-  "চিঠি তৈরি, নম্বরিং ও ডিজিটাল সিগনেচার পরবর্তী ধাপে যুক্ত হবে।":
-    "Letter creation, numbering and digital signatures will be added next.",
   // ranks & statuses
   "লান্স কর্পোরাল": "Lance Corporal",
   "কর্পোরাল": "Corporal",
