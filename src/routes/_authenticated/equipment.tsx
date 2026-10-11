@@ -229,7 +229,7 @@ function EquipmentPage() {
                       : "bg-secondary text-muted-foreground ring-border"
                   }`}
                 >
-                  {t(CONDITION_BN[c])}
+                  {t(CONDITION_BN[c] ?? c)}
                 </button>
               ))}
             </div>
