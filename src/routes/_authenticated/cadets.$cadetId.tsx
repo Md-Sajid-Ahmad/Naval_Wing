@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { t } from "@/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 import { useState } from "react";
@@ -120,16 +120,22 @@ function CadetDetail() {
             </figcaption>
           </figure>
 
-          <div className="mb-4 grid grid-cols-2 gap-2.5">
+          <div className="mb-2.5 grid grid-cols-2 gap-2.5">
             <Info label={t("ব্যাচ")} value={cadet.batch ? bn(cadet.batch) : "—"} />
             <Info
               label={t("স্ট্যাটাস")}
               value={inactive ? t("নন-একটিভ") : t("একটিভ")}
               danger={inactive}
             />
-            <Info label={t("ফোন")} value={cadet.phone ? bn(cadet.phone) : "—"} />
-            <Info label={t("যোগদান")} value={cadet.joined_on ? bn(cadet.joined_on) : "—"} />
+            <Info
+              label={t("যোগদান")}
+              value={cadet.joined_on ? bn(cadet.joined_on) : "—"}
+              className="col-span-2"
+            />
           </div>
+
+          <PhoneRow phone={cadet.phone} />
+
 
           <CadetEquipment cadetId={cadetId} />
 
@@ -151,11 +157,48 @@ function CadetDetail() {
   );
 }
 
-function Info({ label, value, danger }: { label: string; value: string; danger?: boolean }) {
+function Info({
+  label,
+  value,
+  danger,
+  className,
+}: {
+  label: string;
+  value: string;
+  danger?: boolean;
+  className?: string;
+}) {
   return (
-    <div className="rounded-xl glass p-3">
+    <div className={`rounded-xl glass p-3 ${className ?? ""}`}>
       <p className="label-mono">{label}</p>
       <p className={`mt-1 text-sm font-semibold ${danger ? "text-destructive" : ""}`}>{value}</p>
     </div>
+  );
+}
+
+/** নম্বৰ দিয়ে কল করাৰ বাটন — ফোন নাইকিলে কল বাটন দেখুওৱা নয़। */
+function PhoneRow({ phone }: { phone?: string | null }) {
+  const digits = phone?.replace(/[^+\d]/g, "") ?? "";
+  const body = (
+    <>
+      <span className="min-w-0">
+        <span className="label-mono block">{t("ফোন")}</span>
+        <span className="mt-1 block truncate text-sm font-semibold">{phone ? bn(phone) : "—"}</span>
+      </span>
+      {phone && (
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-signal px-3.5 py-2 text-xs font-bold text-navy">
+          <Phone className="size-3.5" /> {t("কল করুন")}
+        </span>
+      )}
+    </>
+  );
+  const cls =
+    "mb-4 flex items-center justify-between gap-3 rounded-xl glass p-3 transition-transform active:scale-[0.99]";
+  return phone ? (
+    <a href={`tel:${digits}`} className={cls} aria-label={`${t("কল করুন")} ${phone}`}>
+      {body}
+    </a>
+  ) : (
+    <div className={cls}>{body}</div>
   );
 }
