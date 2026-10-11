@@ -31,6 +31,7 @@ function AttendancePage() {
   const isStaff = true;
   const qc = useQueryClient();
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [rank, setRank] = useState<string>("all");
 
   const { data: cadets = [] } = useQuery({
     queryKey: ["cadets"],
