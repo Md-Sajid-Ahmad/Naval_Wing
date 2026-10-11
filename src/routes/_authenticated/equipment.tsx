@@ -248,14 +248,6 @@ function EquipmentPage() {
       toast.error(t(parsed.error.issues[0]?.message ?? "তথ্য সঠিক নয়"));
       return;
     }
-    const nameKey = parsed.data.name.trim().toLowerCase();
-    const dup = items.some(
-      (it) => it.id !== editingId && it.name.trim().toLowerCase() === nameKey,
-    );
-    if (dup) {
-      toast.error(t("এই নামের মালামাল আগেই যোগ করা আছে — অন্য নাম দিন।"));
-      return;
-    }
     if (editingId) updateItem.mutate({ id: editingId, form: parsed.data, file: photo });
     else addItem.mutate({ form: parsed.data, file: photo });
   }
