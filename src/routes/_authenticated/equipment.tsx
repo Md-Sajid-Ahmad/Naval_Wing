@@ -202,7 +202,7 @@ function EquipmentPage() {
       toast.success(t("মালামাল মুছে ফেলা হয়েছে"));
       qc.invalidateQueries({ queryKey: ["equipment"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError,
   });
 
   function closeForm() {
