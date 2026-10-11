@@ -45,6 +45,9 @@ function AttendancePage() {
     },
   });
 
+  const ranks = useMemo(() => sortRanks(Array.from(new Set(cadets.map((c) => c.rank)))), [cadets]);
+  const shown = rank === "all" ? cadets : cadets.filter((c) => c.rank === rank);
+
   const { data: records = [] } = useQuery({
     queryKey: ["attendance", date],
     queryFn: async () => {
