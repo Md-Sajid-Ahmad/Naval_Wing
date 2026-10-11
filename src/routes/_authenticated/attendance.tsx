@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { t } from "@/lib/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 
-import { bn, RANK_BN, STATUS_BN } from "@/lib/bn";
+import { bn, RANK_BN, sortRanks, STATUS_BN } from "@/lib/bn";
 import { CadetAvatar } from "@/components/CadetAvatar";
 
 export const Route = createFileRoute("/_authenticated/attendance")({
@@ -31,6 +31,7 @@ function AttendancePage() {
   const isStaff = true;
   const qc = useQueryClient();
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [rank, setRank] = useState<string>("all");
 
   const { data: cadets = [] } = useQuery({
     queryKey: ["cadets"],
@@ -43,6 +44,9 @@ function AttendancePage() {
       return data;
     },
   });
+
+  const ranks = useMemo(() => sortRanks(Array.from(new Set(cadets.map((c) => c.rank)))), [cadets]);
+  const shown = rank === "all" ? cadets : cadets.filter((c) => c.rank === rank);
 
   const { data: records = [] } = useQuery({
     queryKey: ["attendance", date],
@@ -126,8 +130,24 @@ function AttendancePage() {
         </span>
       </div>
 
+      <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1">
+        {["all", ...ranks].map((r) => (
+          <button
+            key={r}
+            onClick={() => setRank(r)}
+            className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-medium ring-1 ${
+              rank === r
+                ? "bg-signal/15 text-signal ring-signal/30"
+                : "bg-secondary text-muted-foreground ring-border"
+            }`}
+          >
+            {r === "all" ? t("সব") : RANK_BN[r] ?? r}
+          </button>
+        ))}
+      </div>
+
       <div className="overflow-hidden rounded-xl glass divide-y divide-border">
-        {cadets.map((c) => {
+        {shown.map((c) => {
           const status = map.get(c.id);
           return (
             <div key={c.id} className="px-3 py-2.5">
