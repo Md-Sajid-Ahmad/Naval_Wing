@@ -51,7 +51,6 @@ const SECTION_BN: Record<Condition, string> = {
   bad: "খারাপ মালামাল",
 };
 
-const SELECTED = "id, name, condition, quantity, category, photo_url";
 
 function asCategory(c: string): Category {
   return (CATEGORIES as readonly string[]).includes(c) ? (c as Category) : "other";
@@ -99,7 +98,10 @@ function EquipmentPage() {
   const { data: items = [] } = useQuery({
     queryKey: ["equipment"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("equipment").select(SELECTED).order("name");
+      const { data, error } = await supabase
+        .from("equipment")
+        .select("id, name, condition, quantity, category, photo_url")
+        .order("name");
       if (error) throw error;
       return data;
     },
@@ -135,7 +137,7 @@ function EquipmentPage() {
       const { data: added, error } = await supabase
         .from("equipment")
         .insert({ ...form, photo_url })
-        .select(SELECTED)
+        .select("id, name, condition, quantity, category, photo_url")
         .single();
       if (error) throw error;
       return added;
@@ -161,13 +163,13 @@ function EquipmentPage() {
       form: z.infer<typeof itemSchema>;
       file: File | null;
     }) => {
-      const patch: Record<string, unknown> = { ...form };
+      const patch: z.infer<typeof itemSchema> & { photo_url?: string } = { ...form };
       if (file && file.size > 0) patch.photo_url = await uploadPhoto(file);
       const { data: updated, error } = await supabase
         .from("equipment")
         .update(patch)
         .eq("id", id)
-        .select(SELECTED)
+        .select("id, name, condition, quantity, category, photo_url")
         .single();
       if (error) throw error;
       return updated;
