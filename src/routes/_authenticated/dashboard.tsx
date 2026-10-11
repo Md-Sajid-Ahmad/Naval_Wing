@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
       { title: "অপারেশন ড্যাশবোর্ড — BNCC Naval Wing" },
       {
         name: "description",
-        content: "ক্যাডেট সংখ্যা, আজকের উপস্থিতি, অপেক্ষমাণ চিঠি ও সরঞ্জামের সংক্ষিপ্ত চিত্র এক নজরে।",
+        content: "ক্যাডেট সংখ্যা, আজকের উপস্থিতি ও সরঞ্জামের সংক্ষিপ্ত চিত্র এক নজরে।",
       },
       { property: "og:title", content: "অপারেশন ড্যাশবোর্ড — BNCC Naval Wing" },
       { property: "og:description", content: "ক্যাডেট, উপস্থিতি ও কার্যক্রমের সংক্ষিপ্ত চিত্র এক নজরে।" },
