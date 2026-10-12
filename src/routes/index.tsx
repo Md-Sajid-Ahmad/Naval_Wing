@@ -6,10 +6,10 @@ export const Route = createFileRoute("/")({
       { title: "BNCC Naval Wing — ব্রিজ কনসোল" },
       {
         name: "description",
-        content: "BNCC নেভাল উইং ম্যানেজমেন্ট অ্যাপ — ক্যাডেট, উপস্থিতি ও রিপোর্ট এক জায়গায়।",
+        content: "BNCC নেভাল উইং ম্যানেজমেন্ট অ্যাপ — ক্যাডেট, উপস্থিতি, মালামাল ও প্রোগ্রাম এক জায়গায়।",
       },
       { property: "og:title", content: "BNCC Naval Wing — ব্রিজ কনসোল" },
-      { property: "og:description", content: "ক্যাডেট, উপস্থিতি ও রিপোর্ট ব্যবস্থাপনা।" },
+      { property: "og:description", content: "ক্যাডেট, উপস্থিতি, মালামাল ও প্রোগ্রাম ব্যবস্থাপনা।" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
