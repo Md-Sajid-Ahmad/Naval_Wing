@@ -1,13 +1,13 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, X, CalendarDays, Clock, ChevronDown } from "lucide-react";
+import { Plus, Trash2, X, CalendarDays, Clock, ChevronDown, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 import { CadetAvatar } from "@/components/CadetAvatar";
 import { t } from "@/lib/i18n";
-import { bn, RANK_BN } from "@/lib/bn";
+import { bn, RANK_BN, sortRanks } from "@/lib/bn";
 
 export const Route = createFileRoute("/_authenticated/programs")({
   head: () => ({
@@ -47,6 +47,8 @@ function ProgramsPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [groupView, setGroupView] = useState<string>("all");
 
   const { data: programs = [] } = useQuery({
     queryKey: ["programs"],
@@ -86,7 +88,7 @@ function ProgramsPage() {
         )}
       </div>
 
-      {open && <ProgramForm onClose={() => setOpen(false)} />}
+      {open && <ProgramForm key="new" onClose={() => setOpen(false)} />}
 
       {programs.length === 0 && !open && (
         <p className="glass rounded-xl p-6 text-center text-sm text-muted-foreground">
@@ -98,9 +100,26 @@ function ProgramsPage() {
         {programs.map((p) => {
           const members = p.program_cadets ?? [];
           const isOpen = expanded === p.id;
+          if (editing === p.id)
+            return (
+              <li key={p.id}>
+                <ProgramForm
+                  key={p.id}
+                  onClose={() => setEditing(null)}
+                  initial={{
+                    id: p.id,
+                    name: p.name,
+                    description: p.description ?? "",
+                    date: p.program_date,
+                    time: p.program_time ? p.program_time.slice(0, 5) : "",
+                    picked: Object.fromEntries(members.map((m) => [m.cadets?.id ?? "", m.group_name]).filter(([k]) => k)),
+                  }}
+                />
+              </li>
+            );
           return (
             <li key={p.id} className="glass rounded-xl p-4">
-              <button onClick={() => setExpanded(isOpen ? null : p.id)} className="w-full text-left">
+              <button onClick={() => { setExpanded(isOpen ? null : p.id); setGroupView("all"); }} className="w-full text-left">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-paper">{p.name}</p>
@@ -116,8 +135,24 @@ function ProgramsPage() {
               {isOpen && (
                 <div className="mt-3 space-y-3 border-t border-border pt-3">
                   {p.description && <p className="whitespace-pre-wrap text-sm text-foreground">{p.description}</p>}
-                  {GROUPS.map((g) => {
+                  <div className="flex flex-wrap gap-1.5">
+                    {[{ value: "all", label: "সব" }, ...GROUPS].map((g) => {
+                      const n = g.value === "all" ? members.length : members.filter((m) => m.group_name === g.value).length;
+                      return (
+                        <button
+                          key={g.value}
+                          onClick={() => setGroupView(g.value)}
+                          className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${groupView === g.value ? "bg-signal text-navy" : "border border-border text-muted-foreground"}`}
+                        >
+                          {t(g.label)} · {bn(String(n))}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {GROUPS.filter((g) => groupView === "all" || g.value === groupView).map((g) => {
                     const list = members.filter((m) => m.group_name === g.value && m.cadets);
+                    if (!list.length && groupView !== "all")
+                      return <p key={g.value} className="text-xs text-muted-foreground">{t("এই গ্রুপে কেউ নেই")}</p>;
                     if (!list.length) return null;
                     return (
                       <div key={g.value}>
@@ -136,12 +171,20 @@ function ProgramsPage() {
                       </div>
                     );
                   })}
+                  <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => setEditing(p.id)}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-signal"
+                  >
+                    <Pencil className="size-3.5" /> {t("সম্পাদনা")}
+                  </button>
                   <button
                     onClick={() => window.confirm(t("এই প্রোগ্রাম মুছে ফেলবেন?")) && del.mutate(p.id)}
                     className="flex items-center gap-1.5 text-xs font-semibold text-destructive"
                   >
                     <Trash2 className="size-3.5" /> {t("মুছে ফেলুন")}
                   </button>
+                  </div>
                 </div>
               )}
             </li>
@@ -152,13 +195,16 @@ function ProgramsPage() {
   );
 }
 
-function ProgramForm({ onClose }: { onClose: () => void }) {
+type Initial = { id: string; name: string; description: string; date: string; time: string; picked: Record<string, string> };
+
+function ProgramForm({ onClose, initial }: { onClose: () => void; initial?: Initial }) {
   const qc = useQueryClient();
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
-  const [time, setTime] = useState("");
-  const [picked, setPicked] = useState<Record<string, string>>({});
+  const [name, setName] = useState(initial?.name ?? "");
+  const [description, setDescription] = useState(initial?.description ?? "");
+  const [date, setDate] = useState(() => initial?.date ?? new Date().toISOString().slice(0, 10));
+  const [time, setTime] = useState(initial?.time ?? "");
+  const [picked, setPicked] = useState<Record<string, string>>(initial?.picked ?? {});
+  const [rank, setRank] = useState("all");
   const [showPicker, setShowPicker] = useState(false);
   const [q, setQ] = useState("");
 
@@ -176,26 +222,36 @@ function ProgramForm({ onClose }: { onClose: () => void }) {
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
-    return s ? cadets.filter((c) => c.full_name.toLowerCase().includes(s) || c.cadet_id.toLowerCase().includes(s)) : cadets;
-  }, [cadets, q]);
+    return cadets
+      .filter((c) => rank === "all" || c.rank === rank)
+      .filter((c) => !s || c.full_name.toLowerCase().includes(s) || c.cadet_id.toLowerCase().includes(s));
+  }, [cadets, q, rank]);
+  const ranks = useMemo(() => sortRanks(Array.from(new Set(cadets.map((c) => c.rank)))), [cadets]);
 
   const save = useMutation({
     mutationFn: async () => {
       if (name.trim().length < 2) throw new Error(t("প্রোগ্রামের নাম দিন"));
-      const { data, error } = await supabase
-        .from("programs")
-        .insert({ name: name.trim(), description: description.trim() || null, program_date: date, program_time: time || null })
-        .select("id")
-        .single();
-      if (error) throw error;
-      const rows = Object.entries(picked).map(([cadet_id, group_name]) => ({ program_id: data.id, cadet_id, group_name }));
+      const fields = { name: name.trim(), description: description.trim() || null, program_date: date, program_time: time || null };
+      let programId: string;
+      if (initial) {
+        const { error } = await supabase.from("programs").update(fields).eq("id", initial.id);
+        if (error) throw error;
+        const { error: e1 } = await supabase.from("program_cadets").delete().eq("program_id", initial.id);
+        if (e1) throw e1;
+        programId = initial.id;
+      } else {
+        const { data, error } = await supabase.from("programs").insert(fields).select("id").single();
+        if (error) throw error;
+        programId = data.id;
+      }
+      const rows = Object.entries(picked).map(([cadet_id, group_name]) => ({ program_id: programId, cadet_id, group_name }));
       if (rows.length) {
         const { error: e2 } = await supabase.from("program_cadets").insert(rows);
         if (e2) throw e2;
       }
     },
     onSuccess: () => {
-      toast.success(t("প্রোগ্রাম যোগ হয়েছে"));
+      toast.success(t(initial ? "প্রোগ্রাম আপডেট হয়েছে" : "প্রোগ্রাম যোগ হয়েছে"));
       qc.invalidateQueries({ queryKey: ["programs"] });
       onClose();
     },
@@ -215,7 +271,7 @@ function ProgramForm({ onClose }: { onClose: () => void }) {
   return (
     <div className="glass mb-5 space-y-3 rounded-xl p-4">
       <div className="flex items-center justify-between">
-        <p className="font-semibold text-paper">Add Program</p>
+        <p className="font-semibold text-paper">{initial ? t("প্রোগ্রাম সম্পাদনা") : "Add Program"}</p>
         <button onClick={onClose} aria-label="close" className="text-muted-foreground"><X className="size-4" /></button>
       </div>
       <label className="block space-y-1">
@@ -248,6 +304,18 @@ function ProgramForm({ onClose }: { onClose: () => void }) {
 
       {showPicker && (
         <div className="space-y-2">
+          <div className="flex flex-wrap gap-1.5">
+            {["all", ...ranks].map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setRank(r)}
+                className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${rank === r ? "bg-signal text-navy" : "border border-border text-muted-foreground"}`}
+              >
+                {r === "all" ? t("সব") : t(RANK_BN[r] ?? r)}
+              </button>
+            ))}
+          </div>
           <input className={INPUT} placeholder={t("নাম বা আইডি দিয়ে খুঁজুন")} value={q} onChange={(e) => setQ(e.target.value)} />
           <ul className="max-h-80 space-y-1.5 overflow-y-auto">
             {filtered.map((c) => {
@@ -288,7 +356,7 @@ function ProgramForm({ onClose }: { onClose: () => void }) {
         disabled={save.isPending}
         className="w-full rounded-full bg-signal py-2.5 text-sm font-semibold text-navy disabled:opacity-60"
       >
-        {save.isPending ? t("সেভ হচ্ছে…") : t("প্রোগ্রাম যোগ করুন")}
+        {save.isPending ? t("সেভ হচ্ছে…") : initial ? t("আপডেট করুন") : t("প্রোগ্রাম যোগ করুন")}
       </button>
     </div>
   );
