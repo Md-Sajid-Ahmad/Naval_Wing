@@ -10,6 +10,7 @@ import { z } from "zod";
 import { bn, initial, RANK_BN, RANK_ORDER, STATUS_BN } from "@/lib/bn";
 import { isInactive } from "@/lib/muster";
 import { CadetEquipment } from "@/components/CadetEquipment";
+import { CadetAvatar } from "@/components/CadetAvatar";
 import { shrinkImage } from "@/lib/photo";
 
 export const Route = createFileRoute("/_authenticated/cadets/$cadetId")({
@@ -103,18 +104,21 @@ function CadetDetail() {
   // সম্পাদনা — নাম, আইডি, র‍্যাংক, ব্যাচ, ফোন আর ছবি বদলানো যায়।
   const editCadet = useMutation({
     mutationFn: async ({ form, file }: { form: z.infer<typeof editSchema>; file: File | null }) => {
-      const patch: Record<string, string | null> = { ...form };
+      let photo_url: string | null = null;
       if (file && file.size > 0) {
         const shot = await shrinkImage(file);
-        const ext = shot.name.split(".").pop() ?? "jpg";
+        const ext = shot.name.split("."").pop() ?? "jpg";
         const path = `${crypto.randomUUID()}.${ext}`;
         const { error: upErr } = await supabase.storage.from("cadet-photos").upload(path, shot, {
           contentType: shot.type || "image/jpeg",
         });
         if (upErr) throw upErr;
-        patch.photo_url = path;
+        photo_url = path;
       }
-      const { error } = await supabase.from("cadets").update(patch).eq("id", cadetId);
+      const { error } = await supabase
+        .from("cadets")
+        .update({ ...form, ...(photo_url ? { photo_url } : {}) })
+        .eq("id", cadetId);
       if (error) throw error;
     },
     onSuccess: () => {
