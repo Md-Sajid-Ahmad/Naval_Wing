@@ -108,6 +108,7 @@ const EN: Record<string, string> = {
   "নতুন ক্যাডেট যোগ হয়েছে": "New cadet added",
   "তথ্য সঠিক নয়": "Invalid information",
   "ক্যাডেট তালিকা": "Cadet List",
+  "ফিরে যান": "Go back",
   "যোগ করুন": "Add",
   "New cadet · নতুন ক্যাডেট": "New cadet",
   "ছবি": "Photo",
