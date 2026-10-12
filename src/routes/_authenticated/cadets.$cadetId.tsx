@@ -242,31 +242,14 @@ function CadetDetail() {
               className="rise mb-4 space-y-2.5 rounded-2xl glass p-4"
             >
               <p className="label-mono">{t("ক্যাডেট সংপাদন")}</p>
-              <div className="flex items-center gap-3">
-                <div className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-secondary ring-1 ring-border">
-                  {photo ? (
-                    <img
-                      src={URL.createObjectURL(photo)}
-                      alt={t("ছবি")}
-                      className="size-full object-cover"
-                    />
-                  ) : (
-                    <CadetAvatar path={cadet.photo_url} name={cadet.full_name} size={56} />
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <label className="label-mono" htmlFor="edit-photo">
-                    {t("ছবি বদল করুন")}
-                  </label>
-                  <input
-                    id="edit-photo"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
-                    className="mt-1 w-full text-[11px] text-muted-foreground file:mr-2 file:rounded-md file:border-0 file:bg-secondary file:px-2 file:py-1 file:text-[11px] file:text-foreground"
-                  />
-                </div>
-              </div>
+              <PhotoPicker
+                photo={photo}
+                onPick={setPhoto}
+                id="edit"
+                label={t("ছবি বদল করুন")}
+                capture="user"
+                fallback={<CadetAvatar path={cadet.photo_url} name={cadet.full_name} size={56} />}
+              />
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
                   <label className="label-mono" htmlFor="edit-cadet_id">

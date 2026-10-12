@@ -109,6 +109,8 @@ const EN: Record<string, string> = {
   "New cadet · নতুন ক্যাডেট": "New cadet",
   "ছবি": "Photo",
   "ক্যাডেটের ছবি": "Cadet photo",
+  "গ্যালারি": "Gallery",
+  "ক্যামেরা": "Camera",
   "ক্যাডেট আইডি": "Cadet ID",
   "ব্যাচ": "Batch",
   "পূর্ণ নাম": "Full name",
