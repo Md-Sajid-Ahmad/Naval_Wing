@@ -49,7 +49,7 @@ const EN: Record<string, string> = {
   "উপস্থিতি": "Attendance",
   "রিপোর্ট": "Reports",
   "মালামাল": "Equipment",
-  "প্রোগ্রাম": "Program", "প্যারেড": "Parade", "পাইলট": "Pilot", "ব্যান্ড": "Band", "অতিরিক্ত": "Extra", "জন": "cadets", "জন ক্যাডেট": "cadets", "এখনো কোনো প্রোগ্রাম নেই": "No programs yet", "প্রোগ্রাম যোগ করুন": "Add program", "প্রোগ্রাম যোগ হয়েছে": "Program added", "প্রোগ্রামের নাম দিন": "Enter program name", "প্রোগ্রাম মুছে ফেলা হয়েছে": "Program deleted", "এই প্রোগ্রাম মুছে ফেলবেন?": "Delete this program?", "নাম বা আইডি দিয়ে খুঁজুন": "Search by name or ID",
+  "প্রোগ্রাম": "Program", "পাইলট": "Pilot", "ব্যান্ড": "Band", "অতিরিক্ত": "Extra", "জন": "cadets", "জন ক্যাডেট": "cadets", "এখনো কোনো প্রোগ্রাম নেই": "No programs yet", "প্রোগ্রাম যোগ করুন": "Add program", "প্রোগ্রাম যোগ হয়েছে": "Program added", "প্রোগ্রামের নাম দিন": "Enter program name", "প্রোগ্রাম মুছে ফেলা হয়েছে": "Program deleted", "এই প্রোগ্রাম মুছে ফেলবেন?": "Delete this program?", "নাম বা আইডি দিয়ে খুঁজুন": "Search by name or ID",
   // equipment
   "নতুন মালামাল": "New equipment",
   "নতুন মালামাল যোগ হয়েছে": "New equipment added",
