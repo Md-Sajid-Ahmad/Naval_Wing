@@ -343,6 +343,15 @@ function CadetDetail() {
                   {t("বাতিল")}
                 </button>
               </div>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                disabled={deleteCadet.isPending}
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold text-destructive ring-1 ring-destructive/40 transition-transform active:scale-[0.99] disabled:opacity-60"
+              >
+                <Trash2 className="size-4" />
+                {deleteCadet.isPending ? t("মুছে ফেলা হচ্ছে…") : t("ক্যাডেট মুছে ফেলুন")}
+              </button>
             </form>
           )}
 
