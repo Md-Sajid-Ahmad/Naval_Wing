@@ -50,6 +50,13 @@
       "when": 1791737057353,
       "tag": "0006_equipment_unique_name",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791826861892,
+      "tag": "0007_programs",
+      "breakpoints": true
     }
   ]
 }

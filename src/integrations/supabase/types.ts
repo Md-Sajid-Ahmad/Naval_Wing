@@ -196,6 +196,72 @@ export type Database = {
         }
         Relationships: []
       }
+      program_cadets: {
+        Row: {
+          cadet_id: string
+          created_at: string
+          group_name: string
+          id: string
+          program_id: string
+        }
+        Insert: {
+          cadet_id: string
+          created_at?: string
+          group_name?: string
+          id?: string
+          program_id: string
+        }
+        Update: {
+          cadet_id?: string
+          created_at?: string
+          group_name?: string
+          id?: string
+          program_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_cadets_cadet_id_fkey"
+            columns: ["cadet_id"]
+            isOneToOne: false
+            referencedRelation: "cadets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_cadets_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      programs: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          program_date: string
+          program_time: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          program_date?: string
+          program_time?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          program_date?: string
+          program_time?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
