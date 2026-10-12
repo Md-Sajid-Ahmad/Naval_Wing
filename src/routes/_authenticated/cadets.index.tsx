@@ -10,6 +10,7 @@ import { AuthedShell } from "@/components/AuthedShell";
 
 import { bn, RANK_BN, RANK_ORDER, sortRanks, STATUS_BN } from "@/lib/bn";
 import { CadetAvatar } from "@/components/CadetAvatar";
+import { PhotoPicker } from "@/components/PhotoPicker";
 import { errorMessage } from "@/lib/error-message";
 import { shrinkImage } from "@/lib/photo";
 
@@ -141,27 +142,14 @@ function CadetsPage() {
       {open && isStaff && (
         <form onSubmit={submit} className="rise mb-4 space-y-2.5 rounded-2xl glass p-4">
           <p className="label-mono">{t("New cadet · নতুন ক্যাডেট")}</p>
-          <div className="flex items-center gap-3">
-            <div className="grid size-14 place-items-center overflow-hidden rounded-xl bg-secondary ring-1 ring-border">
-              {photo ? (
-                <img src={URL.createObjectURL(photo)} alt={t("ছবি")} className="size-full object-cover" />
-              ) : (
-                <span className="text-[10px] text-muted-foreground">{t("ছবি")}</span>
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <label className="label-mono" htmlFor="photo">
-                {t("ক্যাডেটের ছবি")}
-              </label>
-              <input
-                id="photo"
-                type="file"
-                accept="image/*"
-                onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
-                className="mt-1 w-full text-[11px] text-muted-foreground file:mr-2 file:rounded-md file:border-0 file:bg-secondary file:px-2 file:py-1 file:text-[11px] file:text-foreground"
-              />
-            </div>
-          </div>
+          <PhotoPicker
+            photo={photo}
+            onPick={setPhoto}
+            id="new-cadet"
+            label={t("ক্যাডেটের ছবি")}
+            capture="user"
+            fallback={<span className="text-[10px] text-muted-foreground">{t("ছবি")}</span>}
+          />
           <div className="grid grid-cols-2 gap-2.5">
             <Field name="cadet_id" label={t("ক্যাডেট আইডি")} placeholder="BN-2301" />
             <Field name="batch" label={t("ব্যাচ")} placeholder="2025" />

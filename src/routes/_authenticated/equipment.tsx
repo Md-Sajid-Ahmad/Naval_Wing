@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 import { bn } from "@/lib/bn";
 import { CadetAvatar } from "@/components/CadetAvatar";
+import { PhotoPicker } from "@/components/PhotoPicker";
 import { errorMessage } from "@/lib/error-message";
 import { shrinkImage } from "@/lib/photo";
 
@@ -341,42 +342,37 @@ function EquipmentPage() {
           >
             <p className="label-mono">{editing ? t("মালামাল সংপাদন") : t("নতুন মালামাল")}</p>
 
-            <div className="flex items-center gap-3">
-              <label
-                htmlFor="photo"
-                className="grid size-16 shrink-0 cursor-pointer place-items-center overflow-hidden rounded-xl bg-secondary ring-1 ring-dashed ring-border transition-colors hover:ring-signal/60"
-                title={t("ছবি বদল করুন")}
-              >
-                {photo ? (
-                  <img src={URL.createObjectURL(photo)} alt={t("ছবি")} className="size-full object-cover" />
-                ) : editingPhoto ? (
+            <PhotoPicker
+              photo={photo}
+              onPick={setPhoto}
+              id="eq"
+              label={t("ছবি")}
+              capture="environment"
+              size={64}
+              fallback={
+                editingPhoto ? (
                   <img src={editingPhoto} alt={t("ছবি")} className="size-full object-cover" />
                 ) : (
                   <ImagePlus className="size-5 text-muted-foreground" />
-                )}
+                )
+              }
+              hint={
+                editing && photo === null && editingPhoto === null && editing.photo_url
+                  ? t("আগেৰ ছবি রইছে")
+                  : undefined
+              }
+            />
+            <div>
+              <label className="label-mono" htmlFor="name">
+                {t("নাম")}
               </label>
               <input
-                id="photo"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
+                id="name"
+                name="name"
+                defaultValue={editing?.name ?? ""}
+                placeholder={t("যেমন: প্যারেড বুট")}
+                className="mt-1 w-full rounded-lg bg-secondary px-3 py-2 text-sm outline-none ring-1 ring-border focus:ring-signal/60"
               />
-              <div className="min-w-0 flex-1">
-                <label className="label-mono" htmlFor="name">
-                  {t("নাম")}
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  defaultValue={editing?.name ?? ""}
-                  placeholder={t("যেমন: প্যারেড বুট")}
-                  className="mt-1 w-full rounded-lg bg-secondary px-3 py-2 text-sm outline-none ring-1 ring-border focus:ring-signal/60"
-                />
-                {editing && photo === null && editingPhoto === null && editing.photo_url && (
-                  <p className="mt-1 text-[10px] text-muted-foreground">{t("আগেৰ ছবি রইছে")}</p>
-                )}
-              </div>
             </div>
 
             <div>
