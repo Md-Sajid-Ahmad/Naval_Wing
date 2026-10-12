@@ -189,9 +189,12 @@ function CadetDetail() {
 
   return (
     <AuthedShell>
-      <Link to="/cadets" className="mb-4 inline-flex items-center gap-1 text-xs text-muted-foreground">
-        <ChevronLeft className="size-3.5" /> {t("ক্যাডেট তালিকা")}
-      </Link>
+      <button
+        onClick={() => (window.history.length > 1 ? window.history.back() : navigate({ to: "/cadets" }))}
+        className="mb-4 inline-flex items-center gap-1 text-xs text-muted-foreground"
+      >
+        <ChevronLeft className="size-3.5" /> {t("ফিরে যান")}
+      </button>
 
       {!cadet ? (
         <p className="py-10 text-center text-sm text-muted-foreground">{t("লোড হচ্ছে…")}</p>
