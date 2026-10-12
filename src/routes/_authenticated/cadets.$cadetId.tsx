@@ -141,6 +141,28 @@ function CadetDetail() {
     },
   });
 
+  // মুছে ফেলা — ক্যাডেটের সাথে তার উপস্থিতি ও মালামালের হিসাবও মুছে যায় (CASCADE)।
+  const deleteCadet = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("cadets").delete().eq("id", cadetId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("ক্যাডেট মুছে ফেলা হয়েছে"));
+      qc.invalidateQueries({ queryKey: ["cadets"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      navigate({ to: "/cadets" });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  function confirmDelete() {
+    if (!cadet) return;
+    if (window.confirm(t("এই ক্যাডেটকে মুছে ফেলবেন? সব উপস্থিতি ও মালামালের হিসাবও মুছে যাবে।"))) {
+      deleteCadet.mutate();
+    }
+  }
+
   function submitEdit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!cadet) return;
