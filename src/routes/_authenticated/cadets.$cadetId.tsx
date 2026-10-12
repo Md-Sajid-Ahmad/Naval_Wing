@@ -107,7 +107,7 @@ function CadetDetail() {
       let photo_url: string | null = null;
       if (file && file.size > 0) {
         const shot = await shrinkImage(file);
-        const ext = shot.name.split("."").pop() ?? "jpg";
+        const ext = shot.name.split(".").pop() ?? "jpg";
         const path = `${crypto.randomUUID()}.${ext}`;
         const { error: upErr } = await supabase.storage.from("cadet-photos").upload(path, shot, {
           contentType: shot.type || "image/jpeg",
