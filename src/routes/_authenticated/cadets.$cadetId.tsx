@@ -1,7 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { t } from "@/lib/i18n";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, Pencil, Phone } from "lucide-react";
+import { ChevronLeft, Pencil, Phone, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 import { useState } from "react";
@@ -44,6 +44,7 @@ function CadetDetail() {
   const [editing, setEditing] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
   const qc = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: cadet } = useQuery({
     queryKey: ["cadet", cadetId],
@@ -139,6 +140,28 @@ function CadetDetail() {
       }
     },
   });
+
+  // মুছে ফেলা — ক্যাডেটের সাথে তার উপস্থিতি ও মালামালের হিসাবও মুছে যায় (CASCADE)।
+  const deleteCadet = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("cadets").delete().eq("id", cadetId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("ক্যাডেট মুছে ফেলা হয়েছে"));
+      qc.invalidateQueries({ queryKey: ["cadets"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      navigate({ to: "/cadets" });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  function confirmDelete() {
+    if (!cadet) return;
+    if (window.confirm(t("এই ক্যাডেটকে মুছে ফেলবেন? সব উপস্থিতি ও মালামালের হিসাবও মুছে যাবে।"))) {
+      deleteCadet.mutate();
+    }
+  }
 
   function submitEdit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -320,6 +343,15 @@ function CadetDetail() {
                   {t("বাতিল")}
                 </button>
               </div>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                disabled={deleteCadet.isPending}
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold text-destructive ring-1 ring-destructive/40 transition-transform active:scale-[0.99] disabled:opacity-60"
+              >
+                <Trash2 className="size-4" />
+                {deleteCadet.isPending ? t("মুছে ফেলা হচ্ছে…") : t("ক্যাডেট মুছে ফেলুন")}
+              </button>
             </form>
           )}
 
