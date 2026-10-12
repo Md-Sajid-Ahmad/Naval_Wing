@@ -44,6 +44,7 @@ function CadetDetail() {
   const [editing, setEditing] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
   const qc = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: cadet } = useQuery({
     queryKey: ["cadet", cadetId],
