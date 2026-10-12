@@ -17,7 +17,7 @@ type Props = {
   /** মোবাইলত ক্যামেরা — "user" = সন্মুখৰ কেঁচু, "environment" = পিছনৰ কেঁচু */
   capture?: "user" | "environment";
   size?: number;
-  hint?: string;
+  hint?: string | undefined;
 };
 
 export function PhotoPicker({
