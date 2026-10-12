@@ -11,7 +11,7 @@ import { fmtTime } from "./programs";
 import { t } from "@/lib/i18n";
 import { bn, RANK_BN } from "@/lib/bn";
 
-export const Route = createFileRoute("/_authenticated/programs/$programId")({
+export const Route = createFileRoute("/_authenticated/programs_/$programId")({
   head: () => ({
     meta: [
       { title: "প্রোগ্রাম — BNCC Naval Wing" },

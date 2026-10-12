@@ -19,6 +19,7 @@ import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedCadetsIndexRouteImport } from './routes/_authenticated/cadets.index'
 import { Route as AuthenticatedCadetsCadetIdRouteImport } from './routes/_authenticated/cadets.$cadetId'
 import { Route as AuthenticatedEquipmentEquipmentIdRouteImport } from './routes/_authenticated/equipment_.$equipmentId'
+import { Route as AuthenticatedProgramsProgramIdRouteImport } from './routes/_authenticated/programs_.$programId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -72,6 +73,12 @@ const AuthenticatedEquipmentEquipmentIdRoute =
     path: '/equipment/$equipmentId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedProgramsProgramIdRoute =
+  AuthenticatedProgramsProgramIdRouteImport.update({
+    id: '/programs_/$programId',
+    path: '/programs/$programId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/reports': typeof AuthenticatedReportsRoute
   '/cadets/$cadetId': typeof AuthenticatedCadetsCadetIdRoute
   '/equipment/$equipmentId': typeof AuthenticatedEquipmentEquipmentIdRoute
+  '/programs/$programId': typeof AuthenticatedProgramsProgramIdRoute
   '/cadets/': typeof AuthenticatedCadetsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -93,6 +101,7 @@ export interface FileRoutesByTo {
   '/reports': typeof AuthenticatedReportsRoute
   '/cadets/$cadetId': typeof AuthenticatedCadetsCadetIdRoute
   '/equipment/$equipmentId': typeof AuthenticatedEquipmentEquipmentIdRoute
+  '/programs/$programId': typeof AuthenticatedProgramsProgramIdRoute
   '/cadets': typeof AuthenticatedCadetsIndexRoute
 }
 export interface FileRoutesById {
@@ -106,6 +115,7 @@ export interface FileRoutesById {
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/cadets/$cadetId': typeof AuthenticatedCadetsCadetIdRoute
   '/_authenticated/equipment_/$equipmentId': typeof AuthenticatedEquipmentEquipmentIdRoute
+  '/_authenticated/programs_/$programId': typeof AuthenticatedProgramsProgramIdRoute
   '/_authenticated/cadets/': typeof AuthenticatedCadetsIndexRoute
 }
 export interface FileRouteTypes {
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/cadets/$cadetId'
     | '/equipment/$equipmentId'
+    | '/programs/$programId'
     | '/cadets/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/cadets/$cadetId'
     | '/equipment/$equipmentId'
+    | '/programs/$programId'
     | '/cadets'
   id:
     | '__root__'
@@ -142,6 +154,7 @@ export interface FileRouteTypes {
     | '/_authenticated/reports'
     | '/_authenticated/cadets/$cadetId'
     | '/_authenticated/equipment_/$equipmentId'
+    | '/_authenticated/programs_/$programId'
     | '/_authenticated/cadets/'
   fileRoutesById: FileRoutesById
 }
@@ -222,6 +235,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEquipmentEquipmentIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/programs_/$programId': {
+      id: '/_authenticated/programs_/$programId'
+      path: '/programs/$programId'
+      fullPath: '/programs/$programId'
+      preLoaderRoute: typeof AuthenticatedProgramsProgramIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -233,6 +253,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedCadetsCadetIdRoute: typeof AuthenticatedCadetsCadetIdRoute
   AuthenticatedEquipmentEquipmentIdRoute: typeof AuthenticatedEquipmentEquipmentIdRoute
+  AuthenticatedProgramsProgramIdRoute: typeof AuthenticatedProgramsProgramIdRoute
   AuthenticatedCadetsIndexRoute: typeof AuthenticatedCadetsIndexRoute
 }
 
@@ -245,6 +266,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCadetsCadetIdRoute: AuthenticatedCadetsCadetIdRoute,
   AuthenticatedEquipmentEquipmentIdRoute:
     AuthenticatedEquipmentEquipmentIdRoute,
+  AuthenticatedProgramsProgramIdRoute: AuthenticatedProgramsProgramIdRoute,
   AuthenticatedCadetsIndexRoute: AuthenticatedCadetsIndexRoute,
 }
 
