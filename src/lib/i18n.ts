@@ -162,6 +162,7 @@ const EN: Record<string, string> = {
   "Recent attendance · সাম্প্রতিক উপস্থিতি": "Recent attendance",
   "কোনো রেকর্ড নেই।": "No records.",
   "ক্যাডেট মুছে ফেলুন": "Delete cadet",
+  "মুছে ফেলা হচ্ছে…": "Deleting…",
   "ক্যাডেট মুছে ফেলা হয়েছে": "Cadet deleted",
   "এই ক্যাডেটকে মুছে ফেলবেন? সব উপস্থিতি ও মালামালের হিসাবও মুছে যাবে।":
     "Delete this cadet? All attendance and equipment records will also be removed.",
