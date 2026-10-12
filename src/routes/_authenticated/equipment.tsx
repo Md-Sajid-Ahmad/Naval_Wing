@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 import { bn } from "@/lib/bn";
 import { CadetAvatar } from "@/components/CadetAvatar";
+import { PhotoPicker } from "@/components/PhotoPicker";
 import { errorMessage } from "@/lib/error-message";
 import { shrinkImage } from "@/lib/photo";
 

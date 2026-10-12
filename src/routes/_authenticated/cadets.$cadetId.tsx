@@ -11,6 +11,7 @@ import { bn, initial, RANK_BN, RANK_ORDER, STATUS_BN } from "@/lib/bn";
 import { isInactive } from "@/lib/muster";
 import { CadetEquipment } from "@/components/CadetEquipment";
 import { CadetAvatar } from "@/components/CadetAvatar";
+import { PhotoPicker } from "@/components/PhotoPicker";
 import { shrinkImage } from "@/lib/photo";
 
 export const Route = createFileRoute("/_authenticated/cadets/$cadetId")({

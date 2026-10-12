@@ -10,6 +10,7 @@ import { AuthedShell } from "@/components/AuthedShell";
 
 import { bn, RANK_BN, RANK_ORDER, sortRanks, STATUS_BN } from "@/lib/bn";
 import { CadetAvatar } from "@/components/CadetAvatar";
+import { PhotoPicker } from "@/components/PhotoPicker";
 import { errorMessage } from "@/lib/error-message";
 import { shrinkImage } from "@/lib/photo";
 
