@@ -489,13 +489,14 @@ function EquipmentPage() {
       <div className="overflow-hidden rounded-xl glass">
         <div className="divide-y divide-border">
           {rows.map((it) => (
-            <div key={it.id} className="group flex items-center gap-2 px-3 py-2.5 transition-colors hover:bg-foreground/5">
+            <div key={it.id} className="group flex items-center gap-3 px-3 py-3 transition-colors hover:bg-foreground/5">
               <Link
                 to="/equipment/$equipmentId"
                 params={{ equipmentId: it.id }}
                 className="flex min-w-0 flex-1 items-center gap-3"
               >
-                <CadetAvatar path={it.photo_url} name={it.name} size={44} bucket="equipment-photos" />
+                <CadetAvatar path={it.photo_url} name={it.name} size={56} rounded="rounded-xl" bucket="equipment-photos" />
+
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{it.name}</p>
                   <p className="truncate font-mono text-[10px] text-muted-foreground">
