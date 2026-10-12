@@ -1,37 +1,60 @@
-// ছবি আপলোডের আগে ছোট করি — ক্যামেরার ৫ মেগাপিক্সেল ছবি 그대로 আপলোড করলে
-// খোলা দেখি। সবসময় canvas দিয়ে আবার আঁকা হয়, তাই ১ মেগাবাইটের নীচে থামে।
+// ছবি আপলোডের আগে ১০–২০ KB-তে রূপান্তর — মান যতটা সম্ভব ভালো রেখে।
+// ছবি অ্যাপে সর্বোচ্চ ৩২০px-এ দেখায়, তাই ~৪৮০px যথেষ্ট ধারালো।
 
-const MAX_EDGE = 1024;
-const QUALITY = 0.82;
-const SMALL_ENOUGH = 400_000;
+const MAX_BYTES = 20_000;
+const MIN_BYTES = 10_000;
+const EDGES = [480, 420, 360, 320, 280, 240];
+const QUALITIES = [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45, 0.4];
 
-export async function shrinkImage(file: File, maxEdge = MAX_EDGE): Promise<File> {
+function encode(canvas: HTMLCanvasElement, type: string, q: number) {
+  return new Promise<Blob | null>((res) => canvas.toBlob(res, type, q));
+}
+
+export async function shrinkImage(file: File): Promise<File> {
   if (!file.type.startsWith("image/")) return file;
   try {
     const bmp = await createImageBitmap(file);
-    const scale = Math.min(1, maxEdge / Math.max(bmp.width, bmp.height));
-    if (scale >= 1 && file.size <= SMALL_ENOUGH) {
-      bmp.close?.();
-      return file;
-    }
-    const w = Math.max(1, Math.round(bmp.width * scale));
-    const h = Math.max(1, Math.round(bmp.height * scale));
     const canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       bmp.close?.();
       return file;
     }
-    ctx.drawImage(bmp, 0, 0, w, h);
+    // WebP একই সাইজে JPEG-এর চেয়ে ভালো মান দেয়; না থাকলে JPEG।
+    const probe = document.createElement("canvas");
+    probe.width = probe.height = 1;
+    const type = probe.toDataURL("image/webp").startsWith("data:image/webp") ? "image/webp" : "image/jpeg";
+
+    let best: Blob | null = null;
+    outer: for (const edge of EDGES) {
+      const scale = Math.min(1, edge / Math.max(bmp.width, bmp.height));
+      const w = Math.max(1, Math.round(bmp.width * scale));
+      const h = Math.max(1, Math.round(bmp.height * scale));
+      canvas.width = w;
+      canvas.height = h;
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(bmp, 0, 0, w, h);
+      // সবচেয়ে বেশি মান যেটা ২০ KB-এর ভিতরে আসে
+      for (const q of QUALITIES) {
+        const blob = await encode(canvas, type, q);
+        if (!blob) continue;
+        if (blob.size <= MAX_BYTES) {
+          best = blob;
+          break outer;
+        }
+        if (!best || blob.size < best.size) best = blob;
+      }
+    }
     bmp.close?.();
-    const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, "image/jpeg", QUALITY));
-    if (!blob || blob.size >= file.size) return file;
-    const name = file.name.replace(/\.[a-z0-9]+$/i, "") + ".jpg";
-    return new File([blob], name, { type: "image/jpeg", lastModified: Date.now() });
+    if (!best) return file;
+    void MIN_BYTES; // ছোট ছবি স্বাভাবিকভাবেই ১০ KB-এর কম হতে পারে — জোর করে বড় করি না
+    const ext = type === "image/webp" ? ".webp" : ".jpg";
+    const name = file.name.replace(/\.[a-z0-9]+$/i, "") + ext;
+    return new File([best], name, { type, lastModified: Date.now() });
   } catch {
-    // না পারলেন আসল ছবিটাই যাক — কাজ থামবো না।
     return file;
   }
 }
