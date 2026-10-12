@@ -1,13 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { t } from "@/lib/i18n";
-import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, Phone } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ChevronLeft, Pencil, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthedShell } from "@/components/AuthedShell";
 import { useState } from "react";
-import { bn, initial, RANK_BN, STATUS_BN } from "@/lib/bn";
+import { toast } from "sonner";
+import { z } from "zod";
+import { bn, initial, RANK_BN, RANK_ORDER, STATUS_BN } from "@/lib/bn";
 import { isInactive } from "@/lib/muster";
 import { CadetEquipment } from "@/components/CadetEquipment";
+import { shrinkImage } from "@/lib/photo";
 
 export const Route = createFileRoute("/_authenticated/cadets/$cadetId")({
   head: () => ({
@@ -23,9 +26,23 @@ export const Route = createFileRoute("/_authenticated/cadets/$cadetId")({
   component: CadetDetail,
 });
 
+const editSchema = z.object({
+  cadet_id: z.string().trim().min(2, "ক্যাডেট আইডি দিন").max(30),
+  full_name: z.string().trim().min(2, "নাম দিন").max(100),
+  rank: z.string().trim().max(40),
+  batch: z.string().trim().max(10),
+  phone: z.string().trim().max(20).nullable(),
+});
+
+const INPUT_CLS =
+  "mt-1 w-full rounded-lg bg-secondary px-3 py-2 text-sm outline-none ring-1 ring-border focus:ring-signal/60";
+
 function CadetDetail() {
   const { cadetId } = Route.useParams();
   const [shot, setShot] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [photo, setPhoto] = useState<File | null>(null);
+  const qc = useQueryClient();
 
   const { data: cadet } = useQuery({
     queryKey: ["cadet", cadetId],
@@ -83,6 +100,65 @@ function CadetDetail() {
   });
   const inactive = isInactive(absentCount);
 
+  // সম্পাদনা — নাম, আইডি, র‍্যাংক, ব্যাচ, ফোন আর ছবি বদলানো যায়।
+  const editCadet = useMutation({
+    mutationFn: async ({ form, file }: { form: z.infer<typeof editSchema>; file: File | null }) => {
+      const patch: Record<string, string | null> = { ...form };
+      if (file && file.size > 0) {
+        const shot = await shrinkImage(file);
+        const ext = shot.name.split(".").pop() ?? "jpg";
+        const path = `${crypto.randomUUID()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("cadet-photos").upload(path, shot, {
+          contentType: shot.type || "image/jpeg",
+        });
+        if (upErr) throw upErr;
+        patch.photo_url = path;
+      }
+      const { error } = await supabase.from("cadets").update(patch).eq("id", cadetId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("ক্যাডেট সংপাদন হয়েছে"));
+      setEditing(false);
+      setPhoto(null);
+      qc.invalidateQueries({ queryKey: ["cadet", cadetId] });
+      qc.invalidateQueries({ queryKey: ["cadets"] });
+      qc.invalidateQueries({ queryKey: ["cadets", "report"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+    onError: (e: Error) => {
+      const code = (e as Error & { code?: string }).code;
+      if (code === "23505") {
+        toast.error(t("এই ক্যাডেট আইডি আগেই ব্যবহৃত — অন্য আইডি দিন।"));
+      } else {
+        toast.error(e.message);
+      }
+    },
+  });
+
+  function submitEdit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!cadet) return;
+    const fd = new FormData(e.currentTarget);
+    const parsed = editSchema.safeParse({
+      cadet_id: fd.get("cadet_id"),
+      full_name: fd.get("full_name"),
+      rank: fd.get("rank") || "Cadet",
+      batch: fd.get("batch"),
+      phone: fd.get("phone") || null,
+    });
+    if (!parsed.success) {
+      toast.error(t(parsed.error.issues[0]?.message ?? "তথ্য সঠিক নয়"));
+      return;
+    }
+    editCadet.mutate({ form: parsed.data, file: photo });
+  }
+
+  function toggleEdit() {
+    setEditing((v) => !v);
+    setPhoto(null);
+  }
+
   return (
     <AuthedShell>
       <Link to="/cadets" className="mb-4 inline-flex items-center gap-1 text-xs text-muted-foreground">
@@ -113,12 +189,135 @@ function CadetDetail() {
                 />
               )}
             </div>
-            <figcaption className="border-t border-border px-4 py-3">
-              <p className="label-mono">ID · {cadet.cadet_id}</p>
-              <h1 className="mt-1 truncate text-2xl font-extrabold tracking-tight">{cadet.full_name}</h1>
-              <p className="mt-0.5 text-xs text-muted-foreground">{RANK_BN[cadet.rank] ?? cadet.rank}</p>
+            <figcaption className="flex items-center justify-between gap-3 border-t border-border px-4 py-3">
+              <div className="min-w-0">
+                <p className="label-mono">ID · {cadet.cadet_id}</p>
+                <h1 className="mt-1 truncate text-2xl font-extrabold tracking-tight">{cadet.full_name}</h1>
+                <p className="mt-0.5 text-xs text-muted-foreground">{RANK_BN[cadet.rank] ?? cadet.rank}</p>
+              </div>
+              <button
+                type="button"
+                onClick={toggleEdit}
+                aria-label={t("সংপাদন করুন")}
+                className={`grid size-10 shrink-0 place-items-center rounded-full ring-1 transition-transform active:scale-95 ${
+                  editing ? "bg-signal text-primary-foreground ring-signal/40" : "bg-secondary ring-border"
+                }`}
+              >
+                <Pencil className="size-4" />
+              </button>
             </figcaption>
           </figure>
+
+          {editing && (
+            <form
+              key={`${cadet.id}-${cadet.updated_at ?? ""}`}
+              onSubmit={submitEdit}
+              className="rise mb-4 space-y-2.5 rounded-2xl glass p-4"
+            >
+              <p className="label-mono">{t("ক্যাডেট সংপাদন")}</p>
+              <div className="flex items-center gap-3">
+                <div className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-secondary ring-1 ring-border">
+                  {photo ? (
+                    <img
+                      src={URL.createObjectURL(photo)}
+                      alt={t("ছবি")}
+                      className="size-full object-cover"
+                    />
+                  ) : (
+                    <CadetAvatar path={cadet.photo_url} name={cadet.full_name} size={56} />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <label className="label-mono" htmlFor="edit-photo">
+                    {t("ছবি বদল করুন")}
+                  </label>
+                  <input
+                    id="edit-photo"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
+                    className="mt-1 w-full text-[11px] text-muted-foreground file:mr-2 file:rounded-md file:border-0 file:bg-secondary file:px-2 file:py-1 file:text-[11px] file:text-foreground"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label className="label-mono" htmlFor="edit-cadet_id">
+                    {t("ক্যাডেট আইডি")}
+                  </label>
+                  <input
+                    id="edit-cadet_id"
+                    name="cadet_id"
+                    defaultValue={cadet.cadet_id}
+                    className={INPUT_CLS}
+                  />
+                </div>
+                <div>
+                  <label className="label-mono" htmlFor="edit-batch">
+                    {t("ব্যাচ")}
+                  </label>
+                  <input id="edit-batch" name="batch" defaultValue={cadet.batch ?? ""} className={INPUT_CLS} />
+                </div>
+              </div>
+              <div>
+                <label className="label-mono" htmlFor="edit-full_name">
+                  {t("পূর্ণ নাম")}
+                </label>
+                <input
+                  id="edit-full_name"
+                  name="full_name"
+                  defaultValue={cadet.full_name}
+                  className={INPUT_CLS}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2.5">
+                <label className="block">
+                  <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    {t("র‍্যাংক")}
+                  </span>
+                  <select
+                    name="rank"
+                    defaultValue={cadet.rank}
+                    className="w-full rounded-lg border border-border bg-input px-3 py-2 text-sm"
+                  >
+                    {Array.from(new Set([...RANK_ORDER, cadet.rank])).map((r) => (
+                      <option key={r} value={r}>
+                        {RANK_BN[r] ?? r}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div>
+                  <label className="label-mono" htmlFor="edit-phone">
+                    {t("ফোন")}
+                  </label>
+                  <input
+                    id="edit-phone"
+                    name="phone"
+                    defaultValue={cadet.phone ?? ""}
+                    placeholder="017…"
+                    className={INPUT_CLS}
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  disabled={editCadet.isPending}
+                  className="flex-1 rounded-lg bg-signal py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+                >
+                  {editCadet.isPending ? t("সংরক্ষণ হচ্ছে…") : t("আপডেট করুন")}
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleEdit}
+                  className="rounded-lg bg-secondary px-4 py-2.5 text-sm font-semibold ring-1 ring-border"
+                >
+                  {t("বাতিল")}
+                </button>
+              </div>
+            </form>
+          )}
 
           <div className="mb-2.5 grid grid-cols-2 gap-2.5">
             <Info label={t("ব্যাচ")} value={cadet.batch ? bn(cadet.batch) : "—"} />
@@ -176,7 +375,7 @@ function Info({
   );
 }
 
-/** নম্বৰ দিয়ে কল করাৰ বাটন — ফোন নাইকিলে কল বাটন দেখুওৱা নয़। */
+/** নম্বৰ দিয়ে কল করাৰ বাটন — ফোন নাইকিলে কল বাটন দেখুওৱা নয়। */
 function PhoneRow({ phone }: { phone?: string | null }) {
   const digits = phone?.replace(/[^+\d]/g, "") ?? "";
   const callable = digits.replace(/\D/g, "").length >= 6;
