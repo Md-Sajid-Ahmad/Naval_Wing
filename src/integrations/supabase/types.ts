@@ -99,6 +99,7 @@ export type Database = {
           category: string
           condition: string
           created_at: string
+          gender: string
           id: string
           name: string
           photo_url: string | null
@@ -109,6 +110,7 @@ export type Database = {
           category?: string
           condition?: string
           created_at?: string
+          gender?: string
           id?: string
           name: string
           photo_url?: string | null
@@ -119,6 +121,7 @@ export type Database = {
           category?: string
           condition?: string
           created_at?: string
+          gender?: string
           id?: string
           name?: string
           photo_url?: string | null
