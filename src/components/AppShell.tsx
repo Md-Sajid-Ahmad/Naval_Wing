@@ -6,7 +6,6 @@ import { LayoutGrid, Users, Package, CalendarDays } from "lucide-react";
 const TABS = [
   { to: "/dashboard", label: ("ড্যাশবোর্ড"), icon: LayoutGrid },
   { to: "/cadets", label: ("ক্যাডেট"), icon: Users },
-  { to: "/attendance", label: ("উপস্থিতি"), icon: CheckSquare },
   { to: "/equipment", label: ("মালামাল"), icon: Package },
   { to: "/programs", label: ("প্রোগ্রাম"), icon: CalendarDays },
 ] as const;
@@ -25,7 +24,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="mx-auto max-w-[430px] px-4 pb-28 pt-5">{children}</main>
 
       <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[430px] border-t border-border bg-navy/95 [transform:translateZ(0)]">
-        <div className="grid h-16 grid-cols-5">
+        <div className="grid h-16 grid-cols-4">
           {TABS.map((tab) => (
             <Link
               key={tab.to}
