@@ -134,10 +134,6 @@ const EN: Record<string, string> = {
   "নাম, আইডি বা র‍্যাংক খুঁজুন…": "Search name, ID or rank…",
   "সব": "All",
   "কোনো ক্যাডেট মেলেনি।": "No matching cadets.",
-  // attendance
-  "চিহ্ন মুছে ফেলা হয়েছে": "Mark cleared",
-  "ভুল হলে অন্য চিহ্ন চাপুন; নির্বাচিত চিহ্নে আবার চাপলে তা মুছে যাবে।":
-    "If wrong, tap another mark; tap the selected mark again to clear it.",
   "সক্রিয়": "Active",
   "নাম": "Name",
   "দিন": "days",
