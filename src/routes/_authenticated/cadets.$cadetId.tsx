@@ -7,7 +7,7 @@ import { AuthedShell } from "@/components/AuthedShell";
 import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { bn, initial, RANK_BN, RANK_ORDER, STATUS_BN } from "@/lib/bn";
+import { bn, initial, RANK_BN, RANK_ORDER } from "@/lib/bn";
 import { CadetEquipment } from "@/components/CadetEquipment";
 import { CadetAvatar } from "@/components/CadetAvatar";
 import { PhotoPicker } from "@/components/PhotoPicker";
@@ -17,9 +17,9 @@ export const Route = createFileRoute("/_authenticated/cadets/$cadetId")({
   head: () => ({
     meta: [
       { title: "ক্যাডেট প্রোফাইল — BNCC Naval Wing" },
-      { name: "description", content: "একজন ক্যাডেটের বিস্তারিত তথ্য ও সাম্প্রতিক উপস্থিতির রেকর্ড দেখুন।" },
+      { name: "description", content: "একজন ক্যাডেটের বিস্তারিত তথ্য, ছবি, ফোন আর মালামালৰ হিসাব।" },
       { property: "og:title", content: "ক্যাডেট প্রোফাইল — BNCC Naval Wing" },
-      { property: "og:description", content: "ক্যাডেটের বিস্তারিত তথ্য ও উপস্থিতির রেকর্ড।" },
+      { property: "og:description", content: "ক্যাডেটের বিস্তারিত তথ্য, ছবি, ফোন আর মালামাল।" },
       { property: "og:type", content: "profile" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
