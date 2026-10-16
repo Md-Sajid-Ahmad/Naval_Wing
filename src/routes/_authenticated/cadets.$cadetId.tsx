@@ -8,7 +8,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { bn, initial, RANK_BN, RANK_ORDER, STATUS_BN } from "@/lib/bn";
-import { isInactive } from "@/lib/muster";
 import { CadetEquipment } from "@/components/CadetEquipment";
 import { CadetAvatar } from "@/components/CadetAvatar";
 import { PhotoPicker } from "@/components/PhotoPicker";
@@ -73,35 +72,6 @@ function CadetDetail() {
       return data.signedUrl;
     },
   });
-
-  const { data: records = [] } = useQuery({
-    queryKey: ["cadet-attendance", cadetId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("attendance")
-        .select("id, session_date, status")
-        .eq("cadet_id", cadetId)
-        .order("session_date", { ascending: false })
-        .limit(10);
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  // মোট অনুপস্থিতর সংখ্যা — ৩ বা বেশি হলে ক্যাডেট নন-একটিভ (রিপোর্টর নিয়মই)।
-  const { data: absentCount = 0 } = useQuery({
-    queryKey: ["cadet-absent-count", cadetId],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from("attendance")
-        .select("id", { count: "exact", head: true })
-        .eq("cadet_id", cadetId)
-        .eq("status", "absent");
-      if (error) throw error;
-      return count ?? 0;
-    },
-  });
-  const inactive = isInactive(absentCount);
 
   // সম্পাদনা — নাম, আইডি, র‍্যাংক, ব্যাচ, ফোন আর ছবি বদলানো যায়।
   const editCadet = useMutation({
@@ -345,34 +315,15 @@ function CadetDetail() {
           <div className="mb-2.5 grid grid-cols-2 gap-2.5">
             <Info label={t("ব্যাচ")} value={cadet.batch ? bn(cadet.batch) : "—"} />
             <Info
-              label={t("স্ট্যাটাস")}
-              value={inactive ? t("নন-একটিভ") : t("একটিভ")}
-              danger={inactive}
-            />
-            <Info
               label={t("যোগদান")}
               value={cadet.joined_on ? bn(cadet.joined_on) : "—"}
-              className="col-span-2"
             />
           </div>
 
           <PhoneRow phone={cadet.phone} />
 
-
           <CadetEquipment cadetId={cadetId} />
 
-          <p className="label-mono mb-2">{t("Recent attendance · সাম্প্রতিক উপস্থিতি")}</p>
-          <div className="overflow-hidden rounded-xl glass divide-y divide-border">
-            {records.map((r) => (
-              <div key={r.id} className="flex items-center justify-between px-3 py-2.5">
-                <span className="font-mono text-[11px] text-muted-foreground">{bn(r.session_date)}</span>
-                <span className="text-xs font-semibold">{STATUS_BN[r.status] ?? r.status}</span>
-              </div>
-            ))}
-            {records.length === 0 && (
-              <p className="px-3 py-6 text-center text-sm text-muted-foreground">{t("কোনো রেকর্ড নেই।")}</p>
-            )}
-          </div>
         </>
       )}
     </AuthedShell>
