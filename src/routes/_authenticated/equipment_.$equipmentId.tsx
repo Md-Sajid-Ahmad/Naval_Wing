@@ -100,10 +100,11 @@ function EquipmentDetail() {
           </figure>
 
           <div className="mb-4 grid grid-cols-2 gap-2.5">
+            <Info label={t("Male / Female")} value={item.gender === "female" ? "Female" : "Male"} accent />
             <Info label={t("অবস্থা")} value={t(item.condition === "bad" ? "খারাপ" : "ভালো")} ok={item.condition === "good"} danger={item.condition === "bad"} />
-            <Info label={t("সংখ্যা")} value={bn(item.quantity)} accent />
+            <Info label={t("সংখ্যা")} value={bn(item.quantity)} />
             <Info label={t("গ্রুপ")} value={t(item.category === "other" ? "Other" : item.category === "piled" ? "Pilot" : "প্যারেড")} />
-            <Info label={t("যোগ হয়েছে")} value={item.created_at ? bn(item.created_at.slice(0, 10)) : "—"} />
+            <Info label={t("যোগ হয়েছে")} value={item.created_at ? bn(item.created_at.slice(0, 10)) : "—"} wide />
           </div>
         </>
       )}
@@ -111,9 +112,9 @@ function EquipmentDetail() {
   );
 }
 
-function Info({ label, value, danger, ok, accent }: { label: string; value: string; danger?: boolean; ok?: boolean; accent?: boolean }) {
+function Info({ label, value, danger, ok, accent, wide }: { label: string; value: string; danger?: boolean; ok?: boolean; accent?: boolean; wide?: boolean }) {
   return (
-    <div className="rounded-xl glass p-3">
+    <div className={`rounded-xl glass p-3${wide ? " col-span-2" : ""}`}>
       <p className="label-mono">{label}</p>
       <p className={`mt-1 text-sm font-semibold ${danger ? "text-destructive" : ok ? "text-ok" : accent ? "text-signal" : ""}`}>{value}</p>
     </div>
