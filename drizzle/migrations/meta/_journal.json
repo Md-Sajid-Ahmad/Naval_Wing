@@ -57,6 +57,13 @@
       "when": 1791826861892,
       "tag": "0007_programs",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792119405721,
+      "tag": "0008_equipment_gender",
+      "breakpoints": true
     }
   ]
 }
