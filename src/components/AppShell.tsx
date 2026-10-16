@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { t } from "@/lib/i18n";
 import { Link } from "@tanstack/react-router";
-import { LayoutGrid, Users, CheckSquare, Package, CalendarDays } from "lucide-react";
+import { LayoutGrid, Users, Package, CalendarDays } from "lucide-react";
 
 const TABS = [
   { to: "/dashboard", label: ("ড্যাশবোর্ড"), icon: LayoutGrid },
