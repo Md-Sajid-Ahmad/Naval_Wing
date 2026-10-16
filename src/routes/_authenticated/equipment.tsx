@@ -19,9 +19,9 @@ export const Route = createFileRoute("/_authenticated/equipment")({
   head: () => ({
     meta: [
       { title: "মালামাল — BNCC Naval Wing" },
-      { name: "description", content: "ইকুইপমেন্ট ইনভেন্টরি — ভালো ও খারাপ মালামাল আলাদা ভাবে দেখুন, ছবি, নাম, অবস্থা, সংখ্যা ও গ্রুপসহ যোগ ও সংপাদন করুন।" },
+      { name: "description", content: "ইকুইপমেন্ট ইনভেন্টরি — পুৰুষ আৰু মহিলাৰ মালামাল আলাদা ভাবে দেখুন, ছবি, নাম, অবস্থা, সংখ্যা ও গ্রুপসহ যোগ ও সংপাদন করুন।" },
       { property: "og:title", content: "মালামাল — BNCC Naval Wing" },
-      { property: "og:description", content: "ভালো ও খারাপ মালামালের আলাদা তালিকা, যোগ ও সংপাদন।" },
+      { property: "og:description", content: "পুৰুষ আৰু মহিলাৰ মালামালৰ আলাদা তালিকা, যোগ ও সংপাদন।" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -37,6 +37,9 @@ export const Route = createFileRoute("/_authenticated/equipment")({
 const CATEGORIES = ["parade", "piled", "other"] as const;
 type Category = (typeof CATEGORIES)[number];
 type Condition = "good" | "bad";
+type Gender = "male" | "female";
+
+const GENDERS = ["male", "female"] as const;
 
 const CATEGORY_BN: Record<string, string> = {
   parade: "প্যারেড",
@@ -51,7 +54,10 @@ const SECTION_BN: Record<Condition, string> = {
   good: "ভালো মালামাল",
   bad: "খারাপ মালামাল",
 };
-
+const GENDER_BN: Record<Gender, string> = {
+  male: "Male",
+  female: "Female",
+};
 
 function asCategory(c: string): Category {
   return (CATEGORIES as readonly string[]).includes(c) ? (c as Category) : "other";
@@ -59,12 +65,16 @@ function asCategory(c: string): Category {
 function asCondition(c: string): Condition {
   return c === "bad" ? "bad" : "good";
 }
+function asGender(g: string | null | undefined): Gender {
+  return g === "female" ? "female" : "male";
+}
 
 const itemSchema = z.object({
   name: z.string().trim().min(2, "নাম দিন").max(100),
   condition: z.enum(["good", "bad"]),
   quantity: z.coerce.number().int().min(0, "সংখ্যা দিন").max(99999),
   category: z.enum(["parade", "piled", "other"]),
+  gender: z.enum(["male", "female"]),
 });
 
 async function uploadPhoto(file: File): Promise<string> {
@@ -93,12 +103,14 @@ function onError(e: Error) {
 
 function EquipmentPage() {
   const qc = useQueryClient();
+  const [gender, setGender] = useState<Gender>("male");
   const [cond, setCond] = useState<Condition>("good");
   const [term, setTerm] = useState("");
   const [category, setCategory] = useState<string>("all");
   const [open, setOpen] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
   const [condition, setCondition] = useState<Condition>("good");
+  const [formGender, setFormGender] = useState<Gender>("male");
   const [newCategory, setNewCategory] = useState<Category>("parade");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingPhoto, setEditingPhoto] = useState<string | null>(null);
@@ -109,36 +121,50 @@ function EquipmentPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("equipment")
-        .select("id, name, condition, quantity, category, photo_url")
+        .select("id, name, condition, quantity, category, photo_url, gender")
         .order("name");
       if (error) throw error;
       return data;
     },
   });
 
+  // নিন্বাচিত Male/Female-ৰ মালামালহে আগে বাছনি হয়।
+  const mine = useMemo(() => items.filter((it) => asGender(it.gender) === gender), [items, gender]);
+
   const filtered = useMemo(
     () =>
-      items.filter((it) => {
+      mine.filter((it) => {
         const q = term.trim().toLowerCase();
         const matchTerm = !q || it.name.toLowerCase().includes(q);
         return matchTerm && (category === "all" || it.category === category);
       }),
-    [items, term, category],
+    [mine, term, category],
   );
 
   const rows = useMemo(() => filtered.filter((it) => it.condition === cond), [filtered, cond]);
   const editing = useMemo(() => items.find((it) => it.id === editingId) ?? null, [items, editingId]);
 
-  const totalQty = items.reduce((s, it) => s + it.quantity, 0);
-  const goodQty = items.filter((it) => it.condition === "good").reduce((s, it) => s + it.quantity, 0);
+  const totalQty = mine.reduce((s, it) => s + it.quantity, 0);
+  const goodQty = mine.filter((it) => it.condition === "good").reduce((s, it) => s + it.quantity, 0);
   const badQty = totalQty - goodQty;
   const goodRate = totalQty ? Math.round((goodQty / totalQty) * 100) : 100;
 
   const counts: Record<Condition, number> = {
-    good: items.filter((it) => it.condition === "good").length,
-    bad: items.filter((it) => it.condition === "bad").length,
+    good: mine.filter((it) => it.condition === "good").length,
+    bad: mine.filter((it) => it.condition === "bad").length,
   };
   const qtys: Record<Condition, number> = { good: goodQty, bad: badQty };
+
+  const genderCounts: Record<Gender, number> = {
+    male: items.filter((it) => asGender(it.gender) === "male").length,
+    female: items.filter((it) => asGender(it.gender) === "female").length,
+  };
+  const genderQtys: Record<Gender, number> = {
+    male: items.filter((it) => asGender(it.gender) === "male").reduce((s, it) => s + it.quantity, 0),
+    female: items
+      .filter((it) => asGender(it.gender) === "female")
+      .reduce((s, it) => s + it.quantity, 0),
+  };
 
   const addItem = useMutation({
     mutationFn: async ({ form, file }: { form: z.infer<typeof itemSchema>; file: File | null }) => {
@@ -146,7 +172,7 @@ function EquipmentPage() {
       const { data: added, error } = await supabase
         .from("equipment")
         .insert({ ...form, photo_url })
-        .select("id, name, condition, quantity, category, photo_url")
+        .select("id, name, condition, quantity, category, photo_url, gender")
         .single();
       if (error) throw error;
       return added;
@@ -178,7 +204,7 @@ function EquipmentPage() {
         .from("equipment")
         .update(patch)
         .eq("id", id)
-        .select("id, name, condition, quantity, category, photo_url")
+        .select("id, name, condition, quantity, category, photo_url, gender")
         .single();
       if (error) throw error;
       return updated;
@@ -213,6 +239,7 @@ function EquipmentPage() {
     setEditingPhoto(null);
     setNewCategory("parade");
     setCondition(cond);
+    setFormGender(gender);
   }
 
   function toggleForm() {
@@ -220,20 +247,22 @@ function EquipmentPage() {
     else {
       setOpen(true);
       setCondition(cond);
+      setFormGender(gender);
     }
   }
 
   function startEdit(it: (typeof items)[number]) {
-    const mine = ++editSeq.current;
+    const mine2 = ++editSeq.current;
     setOpen(true);
     setEditingId(it.id);
     setCondition(asCondition(it.condition));
+    setFormGender(asGender(it.gender));
     setNewCategory(asCategory(it.category));
     setPhoto(null);
     setEditingPhoto(null);
     if (it.photo_url) {
       void signedPhoto(it.photo_url).then((url) => {
-        if (editSeq.current === mine) setEditingPhoto(url);
+        if (editSeq.current === mine2) setEditingPhoto(url);
       });
     }
   }
@@ -241,6 +270,12 @@ function EquipmentPage() {
   function pickTab(c: Condition) {
     setCond(c);
     setCondition(c);
+    if (editingId) closeForm();
+  }
+
+  function pickGender(g: Gender) {
+    setGender(g);
+    setFormGender(g);
     if (editingId) closeForm();
   }
 
@@ -252,6 +287,7 @@ function EquipmentPage() {
       condition,
       quantity: fd.get("quantity") || 1,
       category: newCategory,
+      gender: formGender,
     });
     if (!parsed.success) {
       toast.error(t(parsed.error.issues[0]?.message ?? "তথ্য সঠিক নয়"));
@@ -270,15 +306,48 @@ function EquipmentPage() {
         <h1 className="text-2xl font-extrabold tracking-tight">{t("মালামাল")}</h1>
       </div>
 
+      {/* Male / Female option — যিটাত চাপ দিব, সিয়াৰ মালামালহে দেকায় */}
+      <div className="rise grid grid-cols-2 gap-2" style={{ animationDelay: "20ms" }}>
+        {GENDERS.map((g) => (
+          <button
+            key={g}
+            onClick={() => pickGender(g)}
+            aria-pressed={gender === g}
+            className={`rounded-xl px-3 py-2.5 text-left ring-1 transition-colors ${
+              gender === g ? "bg-signal/15 ring-signal/40" : "bg-secondary ring-border"
+            }`}
+          >
+            <span className="flex items-center gap-1.5">
+              <span
+                className={`size-1.5 rounded-full ${gender === g ? "bg-signal" : "bg-muted-foreground/50"}`}
+              />
+              <span
+                className={`text-xs font-bold ${gender === g ? "text-signal" : "text-muted-foreground"}`}
+              >
+                {GENDER_BN[g]}
+              </span>
+            </span>
+            <span className="mt-1 block font-mono text-[10px] text-muted-foreground">
+              {bn(genderCounts[g])} {t("আইটেম")} · ×{bn(genderQtys[g])}
+            </span>
+          </button>
+        ))}
+      </div>
+
       {/* সারাংশ হিরো কার্ড */}
-      <div className="rise relative mb-3 overflow-hidden rounded-2xl glass p-4" style={{ animationDelay: "40ms" }}>
+      <div
+        className="rise relative mt-3 mb-3 overflow-hidden rounded-2xl glass p-4"
+        style={{ animationDelay: "40ms" }}
+      >
         <div className="sweep pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12 bg-foreground/10" />
         <div className="relative flex items-center justify-between">
           <div>
-            <p className="font-mono text-[10px] uppercase text-signal">{t("সর্বমোট স্টক")}</p>
+            <p className="font-mono text-[10px] uppercase text-signal">
+              {t("সর্বমোট স্টক")} · {GENDER_BN[gender]}
+            </p>
             <p className="mt-1 text-4xl font-extrabold tracking-tight">{bn(totalQty)}</p>
             <p className="text-[11px] text-muted-foreground">
-              {bn(items.length)} {t("আইটেম")}
+              {bn(mine.length)} {t("আইটেম")}
             </p>
           </div>
           <div className="text-right">
@@ -330,7 +399,9 @@ function EquipmentPage() {
           className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-signal py-2.5 text-sm font-semibold text-primary-foreground transition-transform active:scale-[0.98]"
         >
           <Plus className={`size-4 transition-transform ${open ? "rotate-45" : ""}`} />
-          {open && editing ? t("মালামাল সংপাদন") : `${t("যোগ করুন")} · ${t(SECTION_BN[cond])}`}
+          {open && editing
+            ? t("মালামাল সংপাদন")
+            : `${t("যোগ করুন")} · ${GENDER_BN[formGender]} · ${t(SECTION_BN[cond])}`}
         </button>
 
         {open && (
@@ -373,6 +444,28 @@ function EquipmentPage() {
                 placeholder={t("যেমন: প্যারেড বুট")}
                 className="mt-1 w-full rounded-lg bg-secondary px-3 py-2 text-sm outline-none ring-1 ring-border focus:ring-signal/60"
               />
+            </div>
+
+            <div>
+              <span className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                {t("Male / Female")}
+              </span>
+              <div className="grid grid-cols-2 gap-2">
+                {GENDERS.map((g) => (
+                  <button
+                    key={g}
+                    type="button"
+                    onClick={() => setFormGender(g)}
+                    className={`rounded-lg py-2 text-xs font-semibold ring-1 transition-colors ${
+                      formGender === g
+                        ? "bg-signal/15 text-signal ring-signal/40"
+                        : "bg-secondary text-muted-foreground ring-border"
+                    }`}
+                  >
+                    {GENDER_BN[g]}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div>
@@ -456,7 +549,10 @@ function EquipmentPage() {
         )}
       </div>
 
-      <div className="rise mt-3 flex items-center gap-2 rounded-xl glass px-3 py-2.5" style={{ animationDelay: "160ms" }}>
+      <div
+        className="rise mt-3 flex items-center gap-2 rounded-xl glass px-3 py-2.5"
+        style={{ animationDelay: "160ms" }}
+      >
         <Search className="size-4 text-muted-foreground" />
         <input
           value={term}
@@ -483,19 +579,28 @@ function EquipmentPage() {
       </div>
 
       <p className="mb-2 font-mono text-[10px] text-muted-foreground">
-        {t(SECTION_BN[cond])} · {bn(rows.length)} / {bn(items.length)} ITEMS
+        {GENDER_BN[gender]} · {t(SECTION_BN[cond])} · {bn(rows.length)} / {bn(mine.length)} ITEMS
       </p>
 
       <div className="overflow-hidden rounded-xl glass">
         <div className="divide-y divide-border">
           {rows.map((it) => (
-            <div key={it.id} className="group flex items-center gap-3 px-3 py-3 transition-colors hover:bg-foreground/5">
+            <div
+              key={it.id}
+              className="group flex items-center gap-3 px-3 py-3 transition-colors hover:bg-foreground/5"
+            >
               <Link
                 to="/equipment/$equipmentId"
                 params={{ equipmentId: it.id }}
                 className="flex min-w-0 flex-1 items-center gap-3"
               >
-                <CadetAvatar path={it.photo_url} name={it.name} size={56} rounded="rounded-xl" bucket="equipment-photos" />
+                <CadetAvatar
+                  path={it.photo_url}
+                  name={it.name}
+                  size={56}
+                  rounded="rounded-xl"
+                  bucket="equipment-photos"
+                />
 
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{it.name}</p>
